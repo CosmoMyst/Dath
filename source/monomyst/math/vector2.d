@@ -22,6 +22,8 @@ struct Vector2
     {
         this.x = x;
         this.y = y;
+        v [2] = 0;
+        v [3] = 0;
     }
 
     /// Negates all the components of the vector

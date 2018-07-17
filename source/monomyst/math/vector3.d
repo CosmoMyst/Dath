@@ -28,6 +28,7 @@ struct Vector3
         this.x = x;
         this.y = y;
         this.z = z;
+        v [3] = 0;
     }
 
     /// Negates all the components of the vector
