@@ -1,0 +1,11 @@
+{
+	"name": "monomyst-math",
+	"authors": [
+		"CodeMyst"
+	],
+	"description": "A math library written in D",
+	"copyright": "Copyright © 2018, CodeMyst",
+	"license": "MPL-2.0",
+	"targetPath": "builds",
+	"targetType": "library"
+}

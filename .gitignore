@@ -1,0 +1,15 @@
+.dub
+docs.json
+__dummy.html
+docs/
+monomyst-math.so
+monomyst-math.dylib
+monomyst-math.dll
+monomyst-math.a
+monomyst-math.lib
+monomyst-math-test-*
+*.exe
+*.o
+*.obj
+*.lst
+builds/
