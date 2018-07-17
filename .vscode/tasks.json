@@ -4,13 +4,16 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "build",
+            "label": "unittest",
             "type": "shell",
-            "command": "dub build",
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            }
+            "command": "dub",
+            "args": [
+                "test",
+                "--arch=x86_64"
+            ],
+            "problemMatcher": [
+                "$gcc"
+            ]
         }
     ]
 }
