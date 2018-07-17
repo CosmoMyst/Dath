@@ -1,2 +1,2 @@
-CALL build.bat
+./build.sh
 dub test --arch=x86_64

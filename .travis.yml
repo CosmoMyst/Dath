@@ -1,0 +1,6 @@
+language: d
+d:
+  - dmd
+script:
+  - dub build --arch=x86_64 --compiler=${DC}
+  - dub test --arch=x86_64 --compiler=${DC}
