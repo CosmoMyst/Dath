@@ -30,8 +30,8 @@ struct Vector3
         this.z = z;
     }
 
-    /// Inverts all the components of the vector
-    void invert ()
+    /// Negates all the components of the vector
+    void negate ()
     {
         v = -v;
     }
@@ -48,7 +48,7 @@ unittest
     Vector3 vector = Vector3 (43, 56, 13);
     assert (vector.x == 43 && vector.y == 56 && vector.z == 13);
 
-    vector.invert ();
+    vector.negate ();
     assert (vector.x == -43 && vector.y == -56 && vector.z == -13);
-    vector.invert ();
+    vector.negate ();
 }
