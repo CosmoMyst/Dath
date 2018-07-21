@@ -1,6 +1,4 @@
-module monomyst.math.matrix4x4;
-
-import core.simd;
+module monomyst.math.matrix4;
 
 /// Represents a 4x4 matrix
 ///
@@ -11,7 +9,7 @@ import core.simd;
 /// [r2c0, r2c1, r2c2, r2c3]
 ///
 /// [r3c0, r3c1, r3c2, r3c3]
-struct Matrix4x4
+struct Matrix4
 {
     private float [4] v1;
     private float [4] v2;
@@ -93,7 +91,7 @@ struct Matrix4x4
     }
 
     /++
-        Identity Matrix4x4
+        Identity Matrix4
 
         [1, 0, 0, 0]
         
@@ -103,13 +101,13 @@ struct Matrix4x4
         
         [0, 0, 0, 1]
     +/
-    static Matrix4x4 identity = Matrix4x4 (1, 0, 0, 0,
-                                           0, 1, 0, 0,
-                                           0, 0, 1, 0,
-                                           0, 0, 0, 1);
+    static Matrix4 identity = Matrix4 (1, 0, 0, 0,
+                                       0, 1, 0, 0,
+                                       0, 0, 1, 0,
+                                       0, 0, 0, 1);
 
     /++
-        Zero Matrix4x4
+        Zero Matrix4
 
         [0, 0, 0, 0]
         
@@ -119,24 +117,24 @@ struct Matrix4x4
         
         [0, 0, 0, 0]
     +/
-    static Matrix4x4 zero = Matrix4x4 (0, 0, 0, 0,
-                                       0, 0, 0, 0,
-                                       0, 0, 0, 0,
-                                       0, 0, 0, 0);
+    static Matrix4 zero = Matrix4 (0, 0, 0, 0,
+                                   0, 0, 0, 0,
+                                   0, 0, 0, 0,
+                                   0, 0, 0, 0);
 }
 
 unittest
 {
-    assert (Matrix4x4.sizeof == 64);
+    assert (Matrix4.sizeof == 64);
     
-    Matrix4x4 mat = Matrix4x4.zero;
+    Matrix4 mat = Matrix4.zero;
 
     assert (mat.r0c0 == 0 && mat.r0c1 == 0 && mat.r0c2 == 0 && mat.r0c3 == 0 &&
             mat.r1c0 == 0 && mat.r1c1 == 0 && mat.r1c2 == 0 && mat.r1c3 == 0 &&
             mat.r2c0 == 0 && mat.r2c1 == 0 && mat.r2c2 == 0 && mat.r2c3 == 0 &&
             mat.r3c0 == 0 && mat.r3c1 == 0 && mat.r3c2 == 0 && mat.r3c3 == 0);
 
-    Matrix4x4 identityMat = Matrix4x4.identity;
+    Matrix4 identityMat = Matrix4.identity;
 
     assert (identityMat.r0c0 == 1 && identityMat.r0c1 == 0 && identityMat.r0c2 == 0 && identityMat.r0c3 == 0 &&
             identityMat.r1c0 == 0 && identityMat.r1c1 == 1 && identityMat.r1c2 == 0 && identityMat.r1c3 == 0 &&
