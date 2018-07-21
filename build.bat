@@ -1,1 +1,1 @@
-dub build --arch=x86_64
+dub build --arch=x86_64 --compiler=ldc2
