@@ -1,6 +1,8 @@
 {
 	"fileVersion": 1,
 	"versions": {
-		"intel-intrinsics": "1.0.10"
+		"dshould": "0.1.16",
+		"intel-intrinsics": "1.0.10",
+		"unit-threaded": "0.7.46"
 	}
 }
