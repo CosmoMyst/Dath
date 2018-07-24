@@ -1,6 +1,7 @@
 module monomyst.math.vector3;
 
 import inteli.xmmintrin;
+import inteli.emmintrin;
 
 version (unittest) import monomyst.math.bassert;
 
@@ -49,7 +50,13 @@ struct Vector3
         // TODO: Package intel-intrinsics doesn't support this yet since this is SSE4.1
         // return _mm_cvtss_f32 (_mm_dp_ps (a.v, b.v, 0x71));
 
-        return a.x * b.x + a.y * b.y + a.z * b.z;
+        // return a.x * b.x + a.y * b.y + a.z * b.z;
+
+        __m128 v1 = _mm_loadu_ps (a.v.ptr);
+        __m128 v2 = _mm_loadu_ps (b.v.ptr);
+
+        __m128 res = _mm_mul_ps (v1, v2);
+        return res [0] + res [1] + res [2];
     }
 }
 
