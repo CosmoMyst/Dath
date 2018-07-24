@@ -2,4 +2,5 @@ language: d
 d:
   - ldc
 script:
+  - chmod +x test.sh
   - ./test.sh
