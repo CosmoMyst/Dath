@@ -9,6 +9,6 @@
 	"targetPath": "builds",
 	"targetType": "library",
 	"dependencies": {
-		"intel-intrinsics": "~>1.0.10"
+		"intel-intrinsics": "~>1.0.11"
 	}
 }
