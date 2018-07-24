@@ -2,5 +2,4 @@ language: d
 d:
   - ldc
 script:
-  - dub build --arch=x86_64 --compiler=${DC}
-  - dub test --arch=x86_64 --compiler=${DC}
+  - ./test.sh
