@@ -1,5 +1,7 @@
 module monomyst.math.matrix4;
 
+version (unittest) import monomyst.math.bassert;
+
 /// Represents a 4x4 matrix
 ///
 /// [r0c0, r0c1, r0c2, r0c3]
@@ -121,6 +123,63 @@ struct Matrix4
                                    0, 0, 0, 0,
                                    0, 0, 0, 0,
                                    0, 0, 0, 0);
+
+    /++
+        Rotates a matrix on the x axis by the angle
+
+        Params:
+            angle = Angle in radians
+    +/
+    static Matrix4 rotateX (float angle)
+    {
+        import std.math : sin, cos;
+
+        immutable float cosAngle = cos (angle);
+        immutable float sinAngle = sin (angle);
+
+        return Matrix4 (1, 0,        0,         0,
+                        0, cosAngle, -sinAngle, 0,
+                        0, sinAngle, cosAngle,  0,
+                        0, 0,        0,         1);
+    }
+
+    /++
+        Rotates a matrix on the y axis by the angle
+
+        Params:
+            angle = Angle in radians
+    +/
+    static Matrix4 rotateY (float angle)
+    {
+        import std.math : sin, cos;
+
+        immutable float cosAngle = cos (angle);
+        immutable float sinAngle = sin (angle);
+
+        return Matrix4 (cosAngle,  0, sinAngle, 0,
+                        0,         1, 0,        0,
+                        -sinAngle, 0, cosAngle, 0,
+                        0,         0, 0,        1);
+    }
+
+    /++
+        Rotates a matrix on the z axis by the angle
+
+        Params:
+            angle = Angle in radians
+    +/
+    static Matrix4 rotateZ (float angle)
+    {
+        import std.math : sin, cos;
+
+        immutable float cosAngle = cos (angle);
+        immutable float sinAngle = sin (angle);
+
+        return Matrix4 (cosAngle, -sinAngle, 0, 0,
+                        sinAngle, cosAngle,  0, 0,
+                        0,        0,         1, 0,
+                        0,        0,         0, 1);
+    }
 }
 
 unittest
@@ -140,4 +199,51 @@ unittest
             identityMat.r1c0 == 0 && identityMat.r1c1 == 1 && identityMat.r1c2 == 0 && identityMat.r1c3 == 0 &&
             identityMat.r2c0 == 0 && identityMat.r2c1 == 0 && identityMat.r2c2 == 1 && identityMat.r2c3 == 0 &&
             identityMat.r3c0 == 0 && identityMat.r3c1 == 0 && identityMat.r3c2 == 0 && identityMat.r3c3 == 1);
+}
+
+unittest
+{
+    import std.math : PI;
+
+    Matrix4 rm1 = Matrix4.rotateX (0);
+    bassert (rm1.r0c0, 1);
+    bassertApprox (rm1.r0c1, 0);
+    bassertApprox (rm1.r0c2, 0);
+    bassertApprox (rm1.r0c3, 0);
+
+    bassertApprox (rm1.r1c0, 0);
+    bassert (rm1.r1c1, 1);
+    bassertApprox (rm1.r1c2, 0);
+    bassertApprox (rm1.r1c3, 0);
+
+    bassertApprox (rm1.r2c0, 0);
+    bassertApprox (rm1.r2c1, 0);
+    bassert (rm1.r2c2, 1);
+    bassertApprox (rm1.r2c3, 0);
+
+    bassertApprox (rm1.r3c0, 0);
+    bassertApprox (rm1.r3c1, 0);
+    bassertApprox (rm1.r3c2, 0);
+    bassert (rm1.r3c3, 1);
+
+    Matrix4 rm2 = Matrix4.rotateX (PI);
+    bassert (rm2.r0c0, 1);
+    bassertApprox (rm2.r0c1, 0);
+    bassertApprox (rm2.r0c2, 0);
+    bassertApprox (rm2.r0c3, 0);
+
+    bassertApprox (rm2.r1c0, 0);
+    bassert (rm2.r1c1, -1);
+    bassertApprox (rm2.r1c2, 0);
+    bassertApprox (rm2.r1c3, 0);
+
+    bassertApprox (rm2.r2c0, 0);
+    bassertApprox (rm2.r2c1, 0);
+    bassert (rm2.r2c2, -1);
+    bassertApprox (rm2.r2c3, 0);
+
+    bassertApprox (rm2.r3c0, 0);
+    bassertApprox (rm2.r3c1, 0);
+    bassertApprox (rm2.r3c2, 0);
+    bassert (rm2.r3c3, 1);
 }
