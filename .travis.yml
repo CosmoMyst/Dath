@@ -2,5 +2,6 @@ language: d
 d:
   - ldc
 script:
+  - chmod +x build.sh
   - chmod +x test.sh
   - ./test.sh
