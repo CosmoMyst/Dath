@@ -58,6 +58,39 @@ struct Vector3
         __m128 res = _mm_mul_ps (v1, v2);
         return res [0] + res [1] + res [2];
     }
+    unittest
+    {
+        Vector3 a = Vector3 (2, 5, 3);
+        Vector3 b = Vector3 (7, 4, 9);
+        immutable float res = Vector3.dot (a, b);
+        bassert (res, 61);
+    }
+
+    /++
+        Get the length of the vector.
+        --------------------
+        sqrt (x^2 + y^2 + z^2)
+        --------------------
+    +/
+    float length ()
+    {
+        // TODO: Package intel-intrinsics doesn't support this yet since this is SSE4.1
+        // return _mm_cvtss_f32 (_mm_sqrt_ss (_mm_dp_ps (v, v, 0x71)));
+
+        __m128 v1 = _mm_loadu_ps (v.ptr);
+
+        __m128 res = _mm_mul_ps (v1, v1);
+
+        immutable float sum = res [0] + res [1] + res [2];
+
+        return _mm_cvtss_f32 (_mm_sqrt_ss (sum));
+    }
+    unittest
+    {
+        Vector3 v1 = Vector3 (5, 2, 6);
+        immutable float len = v1.length;
+        bassert (len, 8.06225774829855f);
+    }
 }
 
 unittest
@@ -68,12 +101,4 @@ unittest
 
     vector = Vector3 (43, 56, 13);
     assert (vector.x == 43 && vector.y == 56 && vector.z == 13);
-}
-
-unittest
-{
-    Vector3 a = Vector3 (2, 5, 3);
-    Vector3 b = Vector3 (7, 4, 9);
-    immutable float res = Vector3.dot (a, b);
-    bassert (res, 61);
 }
