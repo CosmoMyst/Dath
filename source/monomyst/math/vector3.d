@@ -91,6 +91,38 @@ struct Vector3
         immutable float len = v1.length;
         bassert (len, 8.06225774829855f);
     }
+    /++
+        Calculates a corss product of two vectors.
+        --------------------
+        c.x = a.y * b.z − a.z * b.y
+        c.y = a.z * b.x − a.x * b.z
+        c.z = a.x * b.y − a.y * b.x
+        --------------------
+    +/
+    static Vector3 cross (Vector3 a, Vector3 b)
+    {
+        __m128 v1 = _mm_loadu_ps (a.v.ptr);
+        __m128 v2 = _mm_loadu_ps (b.v.ptr);
+
+        __m128 res = _mm_sub_ps
+        (
+            _mm_mul_ps (_mm_shuffle_ps! (_MM_SHUFFLE (3, 0, 2, 1)) (v1, v1),
+                        _mm_shuffle_ps! (_MM_SHUFFLE (3, 1, 0, 2)) (v2, v2)),
+            _mm_mul_ps (_mm_shuffle_ps! (_MM_SHUFFLE (3, 1, 0, 2)) (v1, v1),
+                        _mm_shuffle_ps! (_MM_SHUFFLE (3, 0, 2, 1)) (v2, v2))
+        );
+
+        return Vector3 (res [0], res [1], res [2]);
+    }
+    unittest
+    {
+        Vector3 a = Vector3 (2, 3, 4);
+        Vector3 b = Vector3 (5, 6, 7);
+        Vector3 res = Vector3.cross (a, b);
+        bassert (res.x, -3);
+        bassert (res.y, 6);
+        bassert (res.z, -3);
+    }
 }
 
 unittest
