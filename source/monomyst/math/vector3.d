@@ -1,7 +1,6 @@
 module monomyst.math.vector3;
 
 import inteli.xmmintrin;
-import inteli.emmintrin;
 
 version (unittest) import monomyst.math.bassert;
 
@@ -122,6 +121,28 @@ struct Vector3
         bassert (res.x, -3);
         bassert (res.y, 6);
         bassert (res.z, -3);
+    }
+
+    /++
+        Normalizes the vector
+        --------------------
+        res = vector / vector.length
+        --------------------
+    +/
+    Vector3 normalize ()
+    {
+        __m128 v1 = _mm_loadu_ps (v.ptr);
+        __m128 res = _mm_div_ps (v1, length);
+
+        return Vector3 (res [0], res [1], res [2]);
+    }
+    unittest
+    {
+        Vector3 vec = Vector3 (5, 2, 7);
+        Vector3 res = vec.normalize;
+        bassertApprox (res.x, 0.566139f);
+        bassertApprox (res.y, 0.226455f);
+        bassertApprox (res.z, 0.792594f);
     }
 }
 
