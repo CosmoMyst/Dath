@@ -144,6 +144,42 @@ struct Vector3
         bassertApprox (res.y, 0.226455f);
         bassertApprox (res.z, 0.792594f);
     }
+
+    /++
+        Subtracts 2 vectors.
+    +/
+    Vector3 opBinary (string s) (Vector3 vec) if (s == "-")
+    {
+        __m128 v1 = _mm_loadu_ps (v.ptr);
+        __m128 v2 = _mm_loadu_ps (vec.v.ptr);
+        __m128 res = _mm_sub_ps (v1, v2);
+        return Vector3 (res [0], res [1], res [2]);
+    }
+    unittest
+    {
+        Vector3 v1 = Vector3 (5, 6, 7);
+        Vector3 v2 = Vector3 (1, 2, 3);
+        Vector3 res = v1 - v2;
+        bassert (res.x, 4);
+        bassert (res.y, 4);
+        bassert (res.z, 4);
+    }
+
+    /++
+        Negates this vector
+    +/
+    Vector3 opUnary (string s) () if (s == "-")
+    {
+        return Vector3 (-x, -y, -z);
+    }
+    unittest
+    {
+        Vector3 v1 = Vector3 (5, 2, 9);
+        Vector3 res = -v1;
+        bassert (res.x, -5);
+        bassert (res.y, -2);
+        bassert (res.z, -9);
+    }
 }
 
 unittest

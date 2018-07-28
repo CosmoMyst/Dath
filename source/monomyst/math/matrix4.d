@@ -2,6 +2,9 @@ module monomyst.math.matrix4;
 
 version (unittest) import monomyst.math.bassert;
 
+import inteli.xmmintrin;
+import monomyst.math.vector3;
+
 /// Represents a 4x4 matrix
 ///
 /// [r0c0, r0c1, r0c2, r0c3]
@@ -18,52 +21,52 @@ struct Matrix4
     private float [4] v3;
     private float [4] v4;
 
-    @property float r0c0 () { return v1 [0]; }
+    @property float r0c0 () const { return v1 [0]; }
     @property float r0c0 (float value) { return v1 [0] = value; }
 
-    @property float r0c1 () { return v1 [1]; }
+    @property float r0c1 () const { return v1 [1]; }
     @property float r0c1 (float value) { return v1 [1] = value; }
 
-    @property float r0c2 () { return v1 [2]; }
+    @property float r0c2 () const { return v1 [2]; }
     @property float r0c2 (float value) { return v1 [2] = value; }
 
-    @property float r0c3 () { return v1 [3]; }
+    @property float r0c3 () const { return v1 [3]; }
     @property float r0c3 (float value) { return v1 [3] = value; }
 
-    @property float r1c0 () { return v2 [0]; }
+    @property float r1c0 () const { return v2 [0]; }
     @property float r1c0 (float value) { return v2 [0] = value; }
 
-    @property float r1c1 () { return v2 [1]; }
+    @property float r1c1 () const { return v2 [1]; }
     @property float r1c1 (float value) { return v2 [1] = value; }
 
-    @property float r1c2 () { return v2 [2]; }
+    @property float r1c2 () const { return v2 [2]; }
     @property float r1c2 (float value) { return v2 [2] = value; }
 
-    @property float r1c3 () { return v2 [3]; }
+    @property float r1c3 () const { return v2 [3]; }
     @property float r1c3 (float value) { return v2 [3] = value; }
 
-    @property float r2c0 () { return v3 [0]; }
+    @property float r2c0 () const { return v3 [0]; }
     @property float r2c0 (float value) { return v3 [0] = value; }
 
-    @property float r2c1 () { return v3 [1]; }
+    @property float r2c1 () const { return v3 [1]; }
     @property float r2c1 (float value) { return v3 [1] = value; }
 
-    @property float r2c2 () { return v3 [2]; }
+    @property float r2c2 () const { return v3 [2]; }
     @property float r2c2 (float value) { return v3 [2] = value; }
 
-    @property float r2c3 () { return v3 [3]; }
+    @property float r2c3 () const { return v3 [3]; }
     @property float r2c3 (float value) { return v3 [3] = value; }
 
-    @property float r3c0 () { return v4 [0]; }
+    @property float r3c0 () const { return v4 [0]; }
     @property float r3c0 (float value) { return v4 [0] = value; }
 
-    @property float r3c1 () { return v4 [1]; }
+    @property float r3c1 () const { return v4 [1]; }
     @property float r3c1 (float value) { return v4 [1] = value; }
 
-    @property float r3c2 () { return v4 [2]; }
+    @property float r3c2 () const { return v4 [2]; }
     @property float r3c2 (float value) { return v4 [2] = value; }
 
-    @property float r3c3 () { return v4 [3]; }
+    @property float r3c3 () const { return v4 [3]; }
     @property float r3c3 (float value) { return v4 [3] = value; }
 
     /++
@@ -179,6 +182,58 @@ struct Matrix4
                         sinAngle, cosAngle,  0, 0,
                         0,        0,         1, 0,
                         0,        0,         0, 1);
+    }
+
+    /++
+        Creates a look at matrix.
+
+        Params:
+            cameraPosition = A Vector3 struct that defines the camera position. This value is used in translation.
+            cameraTarget   = A Vector3 struct that defines the camera look at target.
+            cameraUpVector = A Vector3 struct that defines the up direction of the current world.
+    +/
+    static Matrix4 lookAt (Vector3 cameraPosition, Vector3 cameraTarget, Vector3 cameraUpVector)
+    {
+        Vector3 zaxis = (cameraTarget - cameraPosition).normalize;
+        Vector3 xaxis = Vector3.cross (cameraUpVector, zaxis).normalize;
+        Vector3 yaxis = Vector3.cross (zaxis, xaxis);
+
+        return Matrix4 (xaxis.x,                               yaxis.x,                              zaxis.x,                             0,  // stfu
+                        xaxis.y,                               yaxis.y,                              zaxis.y,                             0,  // stfu
+                        xaxis.z,                               yaxis.z,                              zaxis.z,                             0,  // stfu
+                        -Vector3.dot (xaxis, cameraPosition), -Vector3.dot (yaxis, cameraPosition), -Vector3.dot (zaxis, cameraPosition), 1); // stfu
+    }
+    unittest
+    {
+        Matrix4 lookat = Matrix4.lookAt (Vector3 (0, 3, -5), Vector3 (0, 0, 0), Vector3 (0, 1, 0));
+
+        bassert (lookat.r0c0, 1.0f);
+        bassert (lookat.r0c1, 0.0f);
+        bassert (lookat.r0c2, 0.0f);
+        bassert (lookat.r0c3, 0.0f);
+        bassert (lookat.r1c0, 0.0f);
+        bassertApprox (lookat.r1c1, 0.857493f);
+        bassertApprox (lookat.r1c2, -0.514496f);
+        bassert (lookat.r1c3, 0.0f);
+        bassert (lookat.r2c0, 0.0f);
+        bassertApprox (lookat.r2c1, 0.514496f);
+        bassertApprox (lookat.r2c2, 0.857493f);
+        bassert (lookat.r2c3, 0.0f);
+        bassert (lookat.r3c0, 0.0f);
+        bassert (lookat.r3c1, 0.0f);
+        bassertApprox (lookat.r3c2, 5.83095f);
+        bassert (lookat.r3c3, 1.0f);
+    }
+
+    /++
+        Gets the text representation of the matrix.
+    +/
+    string toString () const
+    {
+        import std.format : format;
+
+        return format ("%s, %s, %s, %s,\n%s, %s, %s, %s,\n%s, %s, %s, %s,\n%s, %s, %s, %s",
+                      r0c0, r0c1, r0c2, r0c3, r1c0, r1c1, r1c2, r1c3, r2c0, r2c1, r2c2, r2c3, r3c0, r3c1, r3c2, r3c3);
     }
 }
 
