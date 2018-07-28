@@ -10,17 +10,17 @@ struct Vector3
     package float [4] v;
 
     /// The X component of a vector
-    @property float x () { return v [0]; }
+    @property float x () const { return v [0]; }
     /// ditto
     @property float x (float value) { return v [0] = value; }
 
     /// The Y component of a vector
-    @property float y () { return v [1]; }
+    @property float y () const { return v [1]; }
     /// ditto
     @property float y (float value) { return v [1] = value; }
 
     /// The Z  component of a vector
-    @property float z () { return v [2]; }
+    @property float z () const { return v [2]; }
     /// ditto
     @property float z (float value) { return v [2] = value; }
 
@@ -197,6 +197,18 @@ struct Vector3
         bassert (res.x, 2);
         bassert (res.y, 4);
         bassert (res.z, 6);
+    }
+
+    string toString () const
+    {
+        import std.format : format;
+
+        return format ("(%s, %s, %s)", x, y, z);
+    }
+    unittest
+    {
+        const Vector3 v1 = Vector3 (5, 2, 8);
+        bassert (v1.toString, "(5, 2, 8)");
     }
 }
 
