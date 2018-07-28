@@ -189,7 +189,9 @@ struct Matrix4
 
         Params:
             cameraPosition = A Vector3 struct that defines the camera position. This value is used in translation.
+
             cameraTarget   = A Vector3 struct that defines the camera look at target.
+
             cameraUpVector = A Vector3 struct that defines the up direction of the current world.
     +/
     static Matrix4 lookAt (Vector3 cameraPosition, Vector3 cameraTarget, Vector3 cameraUpVector)
@@ -223,6 +225,50 @@ struct Matrix4
         bassert (lookat.r3c1, 0.0f);
         bassertApprox (lookat.r3c2, 5.83095f);
         bassert (lookat.r3c3, 1.0f);
+    }
+
+    /++
+        Creates a perspective projection matrix based on a field of view.
+
+        Params:
+            fovy   = Field of view in the y direction, in radians
+
+            aspect = Aspect ration
+
+            zn     = Z value of the near view plane
+
+            zf     = Z value of the far view plane
+    +/
+    static Matrix4 perspective (float fovy, float aspect, float zn, float zf)
+    {
+        import std.math : tan;
+        const float yscale = 1 / tan (fovy / 2);
+        const float xscale = yscale / aspect;
+
+        return Matrix4 (xscale, 0,      0,             0,
+                        0,      yscale, 0,             0,
+                        0,      0,      zf/(zf-zn),    1,
+                        0,      0,     -zn*zf/(zf-zn), 0);
+    }
+    unittest
+    {
+        Matrix4 res = Matrix4.perspective (0.7853982f, 1.777f, 0.1f, 10.0f);
+        bassertApprox (res.r0c0, 1.35859f);
+        bassert (res.r0c1, 0);
+        bassert (res.r0c2, 0);
+        bassert (res.r0c3, 0);
+        bassert (res.r1c0, 0);
+        bassertApprox (res.r1c1, 2.41421f);
+        bassert (res.r1c2, 0);
+        bassert (res.r1c3, 0);
+        bassert (res.r2c0, 0);
+        bassert (res.r2c1, 0);
+        bassertApprox (res.r2c2, 1.0101f);
+        bassert (res.r2c3, 1);
+        bassert (res.r3c0, 0);
+        bassert (res.r3c1, 0);
+        bassertApprox (res.r3c2, -0.10101f);
+        bassert (res.r3c3, 0);
     }
 
     /++

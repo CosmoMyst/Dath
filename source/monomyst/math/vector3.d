@@ -180,6 +180,24 @@ struct Vector3
         bassert (res.y, -2);
         bassert (res.z, -9);
     }
+
+    /++
+        Divides this vector by a scalar.
+    +/
+    Vector3 opBinary (string s) (in float scalar) if (s == "/")
+    {
+        __m128 v1 = _mm_loadu_ps (v.ptr);
+        __m128 res = _mm_div_ps (v1, scalar);
+        return Vector3 (res [0], res [1], res [2]);
+    }
+    unittest
+    {
+        Vector3 v1 = Vector3 (4, 8, 12);
+        Vector3 res = v1 / 2;
+        bassert (res.x, 2);
+        bassert (res.y, 4);
+        bassert (res.z, 6);
+    }
 }
 
 unittest
