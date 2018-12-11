@@ -21,6 +21,7 @@ then
     printf "Tests ${RED}${BOLD}failed${NW}${NC} in ${SECONDS} seconds at $now"
 else 
     printf "Tests ${GREEN}${BOLD}passed${NW}${NC} in ${SECONDS} seconds at $now"
+    exit $rc
 fi
 
 printf "\n"
