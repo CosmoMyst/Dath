@@ -1,9 +1,9 @@
-module monomyst.math.matrix2;
+module cosmomyst.math.matrix2;
 
 import inteli.xmmintrin;
-import monomyst.math.vector2;
+import cosmomyst.math.vector2;
 
-version (unittest) import monomyst.math.bassert;
+version (unittest) import cosmomyst.math.bassert;
 
 /++
     Matrix 2x2 structure

@@ -1,9 +1,9 @@
-module monomyst.math.matrix4;
+module cosmomyst.math.matrix4;
 
-version (unittest) import monomyst.math.bassert;
+version (unittest) import cosmomyst.math.bassert;
 
 import inteli.xmmintrin;
-import monomyst.math.vector3;
+import cosmomyst.math.vector3;
 
 /// Represents a 4x4 matrix
 ///

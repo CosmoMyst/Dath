@@ -1,4 +1,4 @@
-module monomyst.math.bassert;
+module cosmomyst.math.bassert;
 
 /++
     Asserts if two values are equal.

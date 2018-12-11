@@ -1,8 +1,8 @@
-module monomyst.math.vector3;
+module cosmomyst.math.vector3;
 
 import inteli.xmmintrin;
 
-version (unittest) import monomyst.math.bassert;
+version (unittest) import cosmomyst.math.bassert;
 
 /// Vector3 struct
 struct Vector3
@@ -103,14 +103,22 @@ struct Vector3
         __m128 v1 = _mm_loadu_ps (a.v.ptr);
         __m128 v2 = _mm_loadu_ps (b.v.ptr);
 
-        __m128 res = _mm_sub_ps
-        (
-            _mm_mul_ps (_mm_shuffle_ps! (_MM_SHUFFLE (3, 0, 2, 1)) (v1, v1),
-                        _mm_shuffle_ps! (_MM_SHUFFLE (3, 1, 0, 2)) (v2, v2)),
-            _mm_mul_ps (_mm_shuffle_ps! (_MM_SHUFFLE (3, 1, 0, 2)) (v1, v1),
-                        _mm_shuffle_ps! (_MM_SHUFFLE (3, 0, 2, 1)) (v2, v2))
-        );
+        // __m128 res = _mm_sub_ps
+        // (
+        //     _mm_mul_ps (_mm_shuffle_ps! (_MM_SHUFFLE (3, 0, 2, 1)) (v1, v1),
+        //                 _mm_shuffle_ps! (_MM_SHUFFLE (3, 1, 0, 2)) (v2, v2)),
+        //     _mm_mul_ps (_mm_shuffle_ps! (_MM_SHUFFLE (3, 1, 0, 2)) (v1, v1),
+        //                 _mm_shuffle_ps! (_MM_SHUFFLE (3, 0, 2, 1)) (v2, v2))
+        // );
 
+        // return Vector3 (res [0], res [1], res [2]);
+
+        // __m128 a_yzx = _mm_shuffle_ps(v1, v1, _MM_SHUFFLE(3, 0, 2, 1));
+        // __m128 b_yzx = _mm_shuffle_ps(v2, v2, _MM_SHUFFLE(3, 0, 2, 1));
+        __m128 a_yzx = _mm_shuffle_ps! (_MM_SHUFFLE (3, 0, 2, 1)) (v1, v1);
+        __m128 b_yzx = _mm_shuffle_ps! (_MM_SHUFFLE (3, 0, 2, 1)) (v2, v2);
+        __m128 c = _mm_sub_ps(_mm_mul_ps(v1, b_yzx), _mm_mul_ps(a_yzx, v2));
+        __m128 res = _mm_shuffle_ps! (_MM_SHUFFLE (3, 0, 2, 1)) (c, c);
         return Vector3 (res [0], res [1], res [2]);
     }
     unittest

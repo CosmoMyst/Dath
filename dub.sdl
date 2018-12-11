@@ -1,0 +1,8 @@
+name "cosmomyst-math"
+description "A math library written in D"
+authors "CodeMyst"
+copyright "Copyright © 2018, CodeMyst"
+license "MPL-2.0"
+targetPath "builds"
+targetType "library"
+dependency "intel-intrinsics" version="~>1.0.13"

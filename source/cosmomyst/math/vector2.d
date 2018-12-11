@@ -1,4 +1,4 @@
-module monomyst.math.vector2;
+module cosmomyst.math.vector2;
 
 import inteli.xmmintrin;
 
