@@ -2,7 +2,7 @@
 	"fileVersion": 1,
 	"versions": {
 		"dshould": "0.1.16",
-		"intel-intrinsics": "1.1.2",
+		"intel-intrinsics": "1.2.2",
 		"unit-threaded": "0.7.46"
 	}
 }
