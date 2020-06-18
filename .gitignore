@@ -1,0 +1,15 @@
+.dub
+docs.json
+__dummy.html
+docs/
+/cosmomyst_math
+cosmomyst_math.so
+cosmomyst_math.dylib
+cosmomyst_math.dll
+cosmomyst_math.a
+cosmomyst_math.lib
+cosmomyst_math-test-*
+*.exe
+*.o
+*.obj
+*.lst
