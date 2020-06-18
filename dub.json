@@ -8,5 +8,6 @@
 	},
 	"description": "math lib intended for games",
 	"license": "MIT",
-	"name": "cosmomyst_math"
+	"name": "cosmomyst_math",
+    "targetType": "library"
 }

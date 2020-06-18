@@ -9,6 +9,7 @@ cosmomyst_math.dll
 cosmomyst_math.a
 cosmomyst_math.lib
 cosmomyst_math-test-*
+libcosmomyst_math.a
 *.exe
 *.o
 *.obj
