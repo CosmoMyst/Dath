@@ -35,7 +35,7 @@ struct vec(ulong n) if (n >= 2) {
 
     @nogc this(T...)(T args) pure nothrow {
         static foreach (arg; args) {
-            static assert(is(typeof(arg) == float), "all values must be of type float");
+            static assert(is(typeof(arg) == float) || is(typeof(arg) == const(float)), "all values must be of type float");
         }
 
         static assert(args.length > 0, "no args provided");
@@ -43,7 +43,7 @@ struct vec(ulong n) if (n >= 2) {
         static assert(args.length == 1 || args.length == n, "number of args must be either 1 or number of components");
 
         static if (args.length == 1) {
-            for (int i = 0; i < n; i++) {
+            static foreach (i; 0..n) {
                 v[i] = args[0];
             }
         } else {
@@ -128,9 +128,10 @@ struct vec(ulong n) if (n >= 2) {
      + returns the dot product of 2 vectors.
      +/
     @nogc static float dot(vec!n a, vec!n b) pure nothrow {
+        import std.format : format;
         float res = 0f;
-        for (int i = 0; i < n; i++) {
-            res += a.v[i] * b.v[i];
+        static foreach (i; 0..n) {
+            mixin(format!("res += a.v[%s] * b.v[%s];")(i, i));
         }
         return res;
     }
@@ -139,13 +140,9 @@ struct vec(ulong n) if (n >= 2) {
      + returns the cross product of 2 vectors.
      +/
     @nogc static vec!3 cross(vec!3 a, vec!3 b) pure nothrow {
-        vec!3 res;
-
-        res.x = a.y * b.z - a.z * b.y;
-        res.y = a.z * b.x - a.x * b.z;
-        res.z = a.x * b.y - a.y * b.x;
-
-        return res;
+        return vec!3(a.y * b.z - a.z * b.y,
+                     a.z * b.x - a.x * b.z,
+                     a.x * b.y - a.y * b.x);
     }
 }
 
@@ -154,6 +151,10 @@ unittest {
 
     assert(t1.x == 2f);
     assert(t1.y == 3f);
+
+    auto t2 = vec2(2f);
+    assert(t2.x == 2f);
+    assert(t2.y == 2f);
 
     assert(t1.toString() == "[2, 3]");
 }
