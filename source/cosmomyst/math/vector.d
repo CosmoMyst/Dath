@@ -114,6 +114,17 @@ struct vec(ulong n) if (n >= 1) {
     }
 
     /++
+     + returns the sum of this + scalar
+     +/
+    @nogc vec!n opBinary(string s) (const float scalar) const if (s == "+") {
+        vec!n res;
+        for (int i = 0; i < n; i++) {
+            res[i] = this[i] + scalar;
+        }
+        return res;
+    }
+
+    /++
      + returns the sum of 2 vectors
      +/
     @nogc vec!n opBinary(string s) (const vec!n other) const if (s == "+") {
