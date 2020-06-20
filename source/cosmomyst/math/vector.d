@@ -7,7 +7,7 @@ alias vec4 = vec!4;
 /++
  + vec struct with optional amount of components.
  +/
-struct vec(ulong n) if (n >= 2) {
+struct vec(ulong n) if (n >= 1) {
     union {
         /++
          + internal data
@@ -125,25 +125,39 @@ struct vec(ulong n) if (n >= 2) {
     }
 
     /++
-     + returns the dot product of 2 vectors.
+     + get the nth component
      +/
-    @nogc static float dot(vec!n a, vec!n b) pure nothrow {
-        import std.format : format;
-        float res = 0f;
-        static foreach (i; 0..n) {
-            mixin(format!("res += a.v[%s] * b.v[%s];")(i, i));
-        }
-        return res;
+    @nogc float opIndex(int n) pure const nothrow {
+        return v[n];
     }
 
     /++
-     + returns the cross product of 2 vectors.
+     + set the nth component
      +/
-    @nogc static vec!3 cross(vec!3 a, vec!3 b) pure nothrow {
-        return vec!3(a.y * b.z - a.z * b.y,
-                     a.z * b.x - a.x * b.z,
-                     a.x * b.y - a.y * b.x);
+    @nogc float opIndexAssign(float value, int n) pure nothrow {
+        return v[n] = value;
     }
+}
+
+/++
+ + returns the dot product of 2 vectors.
+ +/
+@nogc float vec_dot(ulong n)(vec!n a, vec!n b) pure nothrow {
+    import std.format : format;
+    float res = 0f;
+    static foreach (i; 0..n) {
+        mixin(format!("res += a.v[%s] * b.v[%s];")(i, i));
+    }
+    return res;
+}
+
+/++
+ + returns the cross product of 2 vectors.
+ +/
+@nogc vec!3 vec_cross(vec!3 a, vec!3 b) pure nothrow {
+    return vec!3(a.y * b.z - a.z * b.y,
+                 a.z * b.x - a.x * b.z,
+                 a.x * b.y - a.y * b.x);
 }
 
 unittest {
@@ -167,13 +181,13 @@ unittest {
 unittest {
     auto t1 = vec3(2f, 5f, 3f);
     auto t2 = vec3(7f, 4f, 9f);
-    assert(vec3.dot(t1, t2) == 61);
+    assert(vec_dot!3(t1, t2) == 61);
 }
 
 unittest {
     auto t1 = vec3(2f, 3f, 4f);
     auto t2 = vec3(5f, 6f, 7f);
-    assert(vec3.cross(t1, t2) == vec3(-3f, 6f, -3f));
+    assert(vec_cross(t1, t2) == vec3(-3f, 6f, -3f));
 }
 
 unittest {
