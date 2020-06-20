@@ -221,9 +221,9 @@ struct mat(ulong n) if (n >= 2) {
 }
 
 /++
- + creates an ortographic projection matrix
+ + creates an orthographic projection matrix
  +/
-@nogc mat4 mat_ortographic(float left, float right, float bottom, float top, float near, float far) pure nothrow {
+@nogc mat4 mat_orthographic(float left, float right, float bottom, float top, float near, float far) pure nothrow {
     float dx = right - left;
     float dy = top - bottom;
     float dz = far - near;
