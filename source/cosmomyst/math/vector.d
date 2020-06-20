@@ -103,6 +103,17 @@ struct vec(ulong n) if (n >= 1) {
     }
 
     /++
+     + returns the mul of this * scalar
+     +/
+    @nogc vec!n opBinary(string s) (const float scalar) const if (s == "*") {
+        vec!n res;
+        for (int i = 0; i < n; i++) {
+            res[i] = this[i] * scalar;
+        }
+        return res;
+    }
+
+    /++
      + returns the sub of 2 vectors.
      +/
     @nogc vec!n opBinary(string s) (const vec!n other) const if (s == "-") {
@@ -114,7 +125,7 @@ struct vec(ulong n) if (n >= 1) {
     }
 
     /++
-     + returns the div of 2 vectors.
+     + returns the div of this / scalar.
      +/
     @nogc vec!n opBinary(string s) (in float scalar) const if (s == "/") {
         vec!n res;
@@ -199,4 +210,9 @@ unittest {
     auto t1 = vec3(5f, 2f, 7f);
     auto t2 = vec3(3f, 7f, 2f);
     assert(t1 - t2 == vec3(2f, -5f, 5f));
+}
+
+unittest {
+    auto t1 = vec3(1f, 2f, 3f);
+    assert(t1 * 2 == vec3(2f, 4f, 6f));
 }
