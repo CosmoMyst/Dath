@@ -66,6 +66,14 @@ struct mat(ulong n) if (n >= 2) {
     }
 
     /++
+     + returns this matrix * scalar
+     +/
+    @nogc void opOpAssign(string s) (const float scalar) pure nothrow if (s == "*") {
+        auto res = this * scalar;
+        this.v = res.v;
+    }
+
+    /++
      + returns this matrix * vector
      +/
     @nogc auto opBinary(string s) (const vec!n vector) pure const nothrow if (s == "*") {
@@ -99,6 +107,14 @@ struct mat(ulong n) if (n >= 2) {
         }
 
         return res;
+    }
+
+    /++
+     + returns this matrix * matrix
+     +/
+    @nogc void opOpAssign (string s) (const mat!n other) pure nothrow if (s == "*") {
+        auto res = this * other;
+        this.v = res.v;
     }
 
     /++
@@ -272,6 +288,8 @@ unittest {
     auto m1 = mat2(1f, 2f, 3f, 4f);
     auto m2 = mat2(5f, 6f, 7f, 8f);
     assert(m1 * m2 == mat2(19f, 22f, 43f, 50f));
+    m1 *= m2;
+    assert(m1 == mat2(19f, 22f, 43f, 50f));
 }
 
 unittest {
