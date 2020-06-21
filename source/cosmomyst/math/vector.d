@@ -75,15 +75,17 @@ struct vec(ulong n) if (n >= 1) {
      + normalizes the vectors. changes the current struct!
      +/
     @nogc void normalize() pure nothrow {
-        this = this / length();
+        this = normalized();
     }
 
     /++
      + returns the normalized vector. doesn't change the current struct!
      +/
     @nogc vec!n normalized() pure nothrow const {
-        auto res = this / length();
-        return res;
+        if (length() == 0) {
+            return vec!n(0f);
+        }
+        return this / length();
     }
 
     string toString() const {
