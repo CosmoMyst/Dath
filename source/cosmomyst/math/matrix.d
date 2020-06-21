@@ -253,6 +253,80 @@ struct mat(ulong n) if (n >= 2) {
                 0f,         0f, -1f,              0f);
 }
 
+/++
+ + returns the inverse of the provided matrix, if no inverse can be found it returns a mat4(inf)
+ +/
+@nogc mat4 mat_inverse(const mat4 a) pure nothrow {
+    mat4 t = a;
+
+    float det2_01_01 = t[0, 0] * t[1, 1] - t[0, 1] * t[1, 0];
+    float det2_01_02 = t[0, 0] * t[1, 2] - t[0, 2] * t[1, 0];
+    float det2_01_03 = t[0, 0] * t[1, 3] - t[0, 3] * t[1, 0];
+    float det2_01_12 = t[0, 1] * t[1, 2] - t[0, 2] * t[1, 1];
+    float det2_01_13 = t[0, 1] * t[1, 3] - t[0, 3] * t[1, 1];
+    float det2_01_23 = t[0, 2] * t[1, 3] - t[0, 3] * t[1, 2];
+
+    float det3_201_012 = t[2, 0] * det2_01_12 - t[2, 1] * det2_01_02 + t[2, 2] * det2_01_01;
+    float det3_201_013 = t[2, 0] * det2_01_13 - t[2, 1] * det2_01_03 + t[2, 3] * det2_01_01;
+    float det3_201_023 = t[2, 0] * det2_01_23 - t[2, 2] * det2_01_03 + t[2, 3] * det2_01_02;
+    float det3_201_123 = t[2, 1] * det2_01_23 - t[2, 2] * det2_01_13 + t[2, 3] * det2_01_12;
+
+    float det = - det3_201_123 * t[3, 0] + det3_201_023 * t[3, 1] - det3_201_013 * t[3, 2] + det3_201_012 * t[3, 3];
+    float invDet = 1 / det;
+
+    float det2_03_01 = t[0, 0] * t[3, 1] - t[0, 1] * t[3, 0];
+    float det2_03_02 = t[0, 0] * t[3, 2] - t[0, 2] * t[3, 0];
+    float det2_03_03 = t[0, 0] * t[3, 3] - t[0, 3] * t[3, 0];
+    float det2_03_12 = t[0, 1] * t[3, 2] - t[0, 2] * t[3, 1];
+    float det2_03_13 = t[0, 1] * t[3, 3] - t[0, 3] * t[3, 1];
+    float det2_03_23 = t[0, 2] * t[3, 3] - t[0, 3] * t[3, 2];
+    float det2_13_01 = t[1, 0] * t[3, 1] - t[1, 1] * t[3, 0];
+    float det2_13_02 = t[1, 0] * t[3, 2] - t[1, 2] * t[3, 0];
+    float det2_13_03 = t[1, 0] * t[3, 3] - t[1, 3] * t[3, 0];
+    float det2_13_12 = t[1, 1] * t[3, 2] - t[1, 2] * t[3, 1];
+    float det2_13_13 = t[1, 1] * t[3, 3] - t[1, 3] * t[3, 1];
+    float det2_13_23 = t[1, 2] * t[3, 3] - t[1, 3] * t[3, 2];
+
+    float det3_203_012 = t[2, 0] * det2_03_12 - t[2, 1] * det2_03_02 + t[2, 2] * det2_03_01;
+    float det3_203_013 = t[2, 0] * det2_03_13 - t[2, 1] * det2_03_03 + t[2, 3] * det2_03_01;
+    float det3_203_023 = t[2, 0] * det2_03_23 - t[2, 2] * det2_03_03 + t[2, 3] * det2_03_02;
+    float det3_203_123 = t[2, 1] * det2_03_23 - t[2, 2] * det2_03_13 + t[2, 3] * det2_03_12;
+
+    float det3_213_012 = t[2, 0] * det2_13_12 - t[2, 1] * det2_13_02 + t[2, 2] * det2_13_01;
+    float det3_213_013 = t[2, 0] * det2_13_13 - t[2, 1] * det2_13_03 + t[2, 3] * det2_13_01;
+    float det3_213_023 = t[2, 0] * det2_13_23 - t[2, 2] * det2_13_03 + t[2, 3] * det2_13_02;
+    float det3_213_123 = t[2, 1] * det2_13_23 - t[2, 2] * det2_13_13 + t[2, 3] * det2_13_12;
+
+    float det3_301_012 = t[3, 0] * det2_01_12 - t[3, 1] * det2_01_02 + t[3, 2] * det2_01_01;
+    float det3_301_013 = t[3, 0] * det2_01_13 - t[3, 1] * det2_01_03 + t[3, 3] * det2_01_01;
+    float det3_301_023 = t[3, 0] * det2_01_23 - t[3, 2] * det2_01_03 + t[3, 3] * det2_01_02;
+    float det3_301_123 = t[3, 1] * det2_01_23 - t[3, 2] * det2_01_13 + t[3, 3] * det2_01_12;
+
+    mat4 res;
+
+    res[0, 0] = - det3_213_123 * invDet;
+    res[1, 0] = + det3_213_023 * invDet;
+    res[2, 0] = - det3_213_013 * invDet;
+    res[3, 0] = + det3_213_012 * invDet;
+
+    res[0, 1] = + det3_203_123 * invDet;
+    res[1, 1] = - det3_203_023 * invDet;
+    res[2, 1] = + det3_203_013 * invDet;
+    res[3, 1] = - det3_203_012 * invDet;
+
+    res[0, 2] = + det3_301_123 * invDet;
+    res[1, 2] = - det3_301_023 * invDet;
+    res[2, 2] = + det3_301_013 * invDet;
+    res[3, 2] = - det3_301_012 * invDet;
+
+    res[0, 3] = - det3_201_123 * invDet;
+    res[1, 3] = + det3_201_023 * invDet;
+    res[2, 3] = - det3_201_013 * invDet;
+    res[3, 3] = + det3_201_012 * invDet;
+
+    return res;
+}
+
 unittest {
     auto t1 = mat2(2f);
     auto t2 = mat2(1f, 2f, 3f, 4f);
@@ -323,4 +397,10 @@ unittest {
 
     auto m1 = mat3(3f);
     assert(m1 * trans == mat3(3f, 3f, 27f, 3f, 3f, 27f, 3f, 3f, 27f));
+}
+
+unittest {
+    
+    auto m1 = mat4(5f, 6f, 6f, 8f, 2f, 2f, 2f, 8f, 6f, 6f, 2f, 8f, 2f, 3f, 6f, 7f);
+    assert(mat_inverse(m1) * m1 == mat_ident!4());
 }
