@@ -117,7 +117,7 @@ struct vec(ulong n) if (n >= 1) {
         return res;
     }
 
-    @nogc void opOpAssign(string s) (const float scalar) pure notrhow if (s == "*") {
+    @nogc void opOpAssign(string s) (const float scalar) pure nothrow if (s == "*") {
         auto res = this * scalar;
         this.v = res.v;
     }
