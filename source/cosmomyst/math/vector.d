@@ -34,8 +34,10 @@ struct vec(ulong n) if (n >= 1) {
     }
 
     @nogc this(T...)(T args) pure nothrow {
+        import std.traits : isNumeric;
+
         static foreach (arg; args) {
-            static assert(is(typeof(arg) == float) || is(typeof(arg) == const(float)), "all values must be of type float");
+            static assert(isNumeric!(typeof(arg)), "all values must be numeric");
         }
 
         static assert(args.length > 0, "no args provided");
@@ -115,6 +117,11 @@ struct vec(ulong n) if (n >= 1) {
         return res;
     }
 
+    @nogc void opOpAssign(string s) (const float scalar) pure notrhow if (s == "*") {
+        auto res = this * scalar;
+        this.v = res.v;
+    }
+
     /++
      + returns the sum of this + scalar
      +/
@@ -124,6 +131,43 @@ struct vec(ulong n) if (n >= 1) {
             res[i] = this[i] + scalar;
         }
         return res;
+    }
+
+    @nogc void opOpAssign(string s) (const float scalar) const if (s == "+") {
+        auto res = this + scalar;
+        this.v = res.v;
+    }
+
+    /++
+     + returns the sub of this - scalar
+     +/
+    @nogc vec!n opBinary(string s) (const float scalar) const if (s == "-") {
+        vec!n res;
+        for (int i = 0; i < n; i++) {
+            res[i] = this[i] - scalar;
+        }
+        return res;
+    }
+
+    @nogc void opOpAssign(string s) (const float scalar) const if (s == "-") {
+        auto res = this - scalar;
+        this.v = res.v;
+    }
+
+    /++
+     + returns the div of this / scalar.
+     +/
+    @nogc vec!n opBinary(string s) (in float scalar) const if (s == "/") {
+        vec!n res;
+        for (int i = 0; i < n; i++) {
+            res.v[i] = v[i] / scalar;
+        }
+        return res;
+    }
+
+    @nogc void opOpAssign(string s) (in float scalar) const if (s == "/") {
+        auto res = this / scalar;
+        this.v = res.v;
     }
 
     /++
@@ -137,6 +181,11 @@ struct vec(ulong n) if (n >= 1) {
         return res;
     }
 
+    @nogc void opOpAssign(string s) (const vec!n other) const if (s == "+") {
+        auto res = this + other;
+        this.v = res.v;
+    }
+
     /++
      + returns the sub of 2 vectors.
      +/
@@ -148,15 +197,9 @@ struct vec(ulong n) if (n >= 1) {
         return res;
     }
 
-    /++
-     + returns the div of this / scalar.
-     +/
-    @nogc vec!n opBinary(string s) (in float scalar) const if (s == "/") {
-        vec!n res;
-        for (int i = 0; i < n; i++) {
-            res.v[i] = v[i] / scalar;
-        }
-        return res;
+    @nogc void opOpAssign(string s) (const vec!n other) const if (s == "-") {
+        auto res = this - other;
+        this.v = res.v;
     }
 
     /++
@@ -206,6 +249,12 @@ unittest {
     assert(t2.y == 2f);
 
     assert(t1.toString() == "[2, 3]");
+}
+
+unittest {
+    auto t1 = vec2(2, 3);
+
+    assert(t1 * 2 == vec2(4, 6));
 }
 
 unittest {
