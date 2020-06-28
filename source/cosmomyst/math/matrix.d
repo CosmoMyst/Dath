@@ -17,8 +17,10 @@ struct mat(ulong n) if (n >= 2) {
     }
 
     @nogc this(T...)(T args) pure nothrow {
+        import std.traits : isNumeric;
+
         static foreach (arg; args) {
-            static assert(is(typeof(arg) == float) || is(typeof(arg) == const(float)), "all values must be of type float");
+            static assert(isNumeric!(typeof(arg)), "all values must be numeric");
         }
 
         static assert(args.length > 0, "no args provided");
@@ -131,11 +133,6 @@ struct mat(ulong n) if (n >= 2) {
 
         return res;
      }
-
-    string toString() {
-        import std.format : format;
-        return format!("%s")(c);
-    }
 
     /++
      + internal data as a pointer, use for sending data to shaders.
@@ -343,8 +340,6 @@ unittest {
 
     t1[0, 0] = 5f;
     assert(t1[0, 0] == 5f);
-
-    assert(t1.toString() == "[[5, 2], [2, 2]]");
 }
 
 unittest {
@@ -400,7 +395,6 @@ unittest {
 }
 
 unittest {
-    
     auto m1 = mat4(5f, 6f, 6f, 8f, 2f, 2f, 2f, 8f, 6f, 6f, 2f, 8f, 2f, 3f, 6f, 7f);
     assert(mat_inverse(m1) * m1 == mat_ident!4());
 }

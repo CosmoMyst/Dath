@@ -90,11 +90,6 @@ struct vec(ulong n) if (n >= 1) {
         return this / length();
     }
 
-    string toString() const {
-        import std.string : format;
-        return format("%s", v);
-    }
-
     /++
      + returns the negated vector.
      +/
@@ -221,10 +216,9 @@ struct vec(ulong n) if (n >= 1) {
  + returns the dot product of 2 vectors.
  +/
 @nogc float vec_dot(ulong n)(vec!n a, vec!n b) pure nothrow {
-    import std.format : format;
     float res = 0f;
     static foreach (i; 0..n) {
-        mixin(format!("res += a.v[%s] * b.v[%s];")(i, i));
+        res += a.v[i] * b.v[i];
     }
     return res;
 }
@@ -247,8 +241,6 @@ unittest {
     auto t2 = vec2(2f);
     assert(t2.x == 2f);
     assert(t2.y == 2f);
-
-    assert(t1.toString() == "[2, 3]");
 }
 
 unittest {
