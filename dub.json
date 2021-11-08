@@ -3,11 +3,9 @@
 		"CodeMyst"
 	],
 	"copyright": "Copyright © 2020, codemyst",
-	"dependencies": {
-		"intel-intrinsics": "~>1.2.5"
-	},
+	"dependencies": {},
 	"description": "math lib intended for games. still very much a work in progress.",
 	"license": "MIT",
-	"name": "cosmomyst_math",
+	"name": "dath",
     "targetType": "library"
 }

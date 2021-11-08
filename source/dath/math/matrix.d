@@ -1,7 +1,7 @@
-module cosmomyst.math.matrix;
+module dath.matrix;
 
-import cosmomyst.math.core;
-import cosmomyst.math.vector;
+import dath.core;
+import dath.vector;
 
 alias mat2 = mat!2;
 alias mat3 = mat!3;

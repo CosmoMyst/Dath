@@ -1,4 +1,4 @@
-module cosmomyst.math.core;
+module dath.core;
 
 /++
  + converts deg to rad

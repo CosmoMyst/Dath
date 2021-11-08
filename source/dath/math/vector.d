@@ -1,4 +1,4 @@
-module cosmomyst.math.vector;
+module dath.vector;
 
 alias vec2 = vec!2;
 alias vec3 = vec!3;
