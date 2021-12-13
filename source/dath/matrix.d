@@ -277,7 +277,7 @@ struct Mat(ulong n) if (n >= 2)
  +/
 @nogc Mat4 matPerspective(float fov_in_radians, float aspect, float near, float far) pure nothrow
 {
-    import std.math : tan;
+    import core.stdc.math : tan;
 
     float f = 1 / tan(fov_in_radians / 2);
     float d = 1 / (near - far);

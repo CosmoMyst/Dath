@@ -1,11 +1,11 @@
 module dath.core;
 
+public const double PI = 3.14159265358979323846;
+
 /++
  + converts deg to rad
  +/
 @nogc float rad(float deg) pure nothrow {
-    import std.math : PI;
-
     return deg * (PI / 180);
 }
 
@@ -13,7 +13,5 @@ module dath.core;
  + converts rad to deg
  +/
 @nogc float deg(float rad) pure nothrow {
-    import std.math : PI;
-
     return rad * 180 / PI;
 }
