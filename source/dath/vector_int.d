@@ -1,5 +1,7 @@
 module dath.vector_int;
 
+import dath.vector;
+
 alias VecI2 = VecI!2;
 alias VecI3 = VecI!3;
 alias VecI4 = VecI!4;
@@ -230,6 +232,19 @@ struct VecI(ulong n) if (n >= 1)
     {
         return v[n] = value;
     }
+
+    /++
+     + cast to a float vector
+     +/
+    @nogc Vec!n opCast(T)() pure const nothrow if (is(T == Vec!n))
+    {
+        Vec!n res;
+        for (int i = 0; i < n; i++)
+        {
+            res.v[i] = cast(float) v[i];
+        }
+        return res;
+    }
 }
 
 unittest
@@ -274,4 +289,11 @@ unittest
 {
     auto t1 = VecI3(1, 2, 3);
     assert(t1 * 2 == VecI3(2, 4, 6));
+}
+
+unittest
+{
+    auto t1 = VecI2(1, 2);
+    auto t2 = cast(Vec2) t1;
+    assert(t2.x == 1f && t2.y == 2f);
 }
