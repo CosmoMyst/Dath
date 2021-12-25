@@ -7,6 +7,5 @@
 	"description": "math lib intended for games. still very much a work in progress.",
 	"license": "MIT",
 	"name": "dath",
-    "targetType": "library",
-    "buildOptions": ["betterC"]
+    "targetType": "library"
 }
