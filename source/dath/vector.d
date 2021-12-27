@@ -238,6 +238,44 @@ struct Vec(ulong n) if (n >= 1)
     }
 
     /++
+     + returns the mul of 2 vectors.
+     +/
+    @nogc Vec!n opBinary(string s) (const Vec!n other) const if (s == "*")
+    {
+        Vec!n res;
+        for (int i = 0; i < n; i++)
+        {
+            res.v[i] = v[i] * other.v[i];
+        }
+        return res;
+    }
+
+    @nogc void opOpAssign(string s) (const Vec!n other) const if (s == "*")
+    {
+        auto res = this * other;
+        this.v = res.v;
+    }
+
+    /++
+     + returns the div of 2 vectors.
+     +/
+    @nogc Vec!n opBinary(string s) (const Vec!n other) const if (s == "/")
+    {
+        Vec!n res;
+        for (int i = 0; i < n; i++)
+        {
+            res.v[i] = v[i] / other.v[i];
+        }
+        return res;
+    }
+
+    @nogc void opOpAssign(string s) (const Vec!n other) const if (s == "/")
+    {
+        auto res = this / other;
+        this.v = res.v;
+    }
+
+    /++
      + get the nth component
      +/
     @nogc float opIndex(int n) pure const nothrow
