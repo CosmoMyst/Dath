@@ -156,7 +156,7 @@ struct Vec(ulong n) if (n >= 1)
         return res;
     }
 
-    @nogc void opOpAssign(string s) (const float scalar) const if (s == "+")
+    @nogc void opOpAssign(string s) (const float scalar) if (s == "+")
     {
         auto res = this + scalar;
         this.v = res.v;
@@ -175,7 +175,7 @@ struct Vec(ulong n) if (n >= 1)
         return res;
     }
 
-    @nogc void opOpAssign(string s) (const float scalar) const if (s == "-")
+    @nogc void opOpAssign(string s) (const float scalar) if (s == "-")
     {
         auto res = this - scalar;
         this.v = res.v;
@@ -194,7 +194,7 @@ struct Vec(ulong n) if (n >= 1)
         return res;
     }
 
-    @nogc void opOpAssign(string s) (in float scalar) const if (s == "/")
+    @nogc void opOpAssign(string s) (in float scalar) if (s == "/")
     {
         auto res = this / scalar;
         this.v = res.v;
