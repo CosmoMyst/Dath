@@ -3,9 +3,12 @@
 		"CodeMyst"
 	],
 	"copyright": "Copyright © 2020, codemyst",
-	"dependencies": {},
+	"dependencies": {
+		"fluent-asserts": "~>0.13.3",
+		"silly": "~>1.1.1"
+	},
 	"description": "math lib intended for games. still very much a work in progress.",
 	"license": "MIT",
 	"name": "dath",
-    "targetType": "library"
+	"targetType": "library"
 }

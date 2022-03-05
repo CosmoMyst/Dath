@@ -1,121 +1,123 @@
 module dath.matrix;
 
+version(unittest) import fluent.asserts;
+
+import std.traits;
 import dath.core;
 import dath.vector;
 
-alias Mat2 = Mat!2;
-alias Mat3 = Mat!3;
-alias Mat4 = Mat!4;
+alias Mat2f = Mat!(float, 2);
+alias Mat3f = Mat!(float, 3);
+alias Mat4f = Mat!(float, 4);
+
+alias Mat2 = Mat2f;
+alias Mat3 = Mat3f;
+alias Mat4 = Mat4f;
+
+alias Mat2d = Mat!(double, 2);
+alias Mat3d = Mat!(double, 3);
+alias Mat4d = Mat!(double, 4);
+
+alias Mat2i = Mat!(int, 2);
+alias Mat3i = Mat!(int, 3);
+alias Mat4i = Mat!(int, 4);
+
+alias Mat2u = Mat!(uint, 2);
+alias Mat3u = Mat!(uint, 3);
+alias Mat4u = Mat!(uint, 4);
 
 /++
- + a square NxN matrix
+ + A square NxN matrix. Supports any numeric type.
  +/
-struct Mat(ulong n) if (n >= 2)
+struct Mat(T, ulong n) if (n >= 2 && isNumeric!T)
 {
     union
     {
-        float[n*n] v; // all values
-        float[n][n] c; // all components
+        T[n*n] v; // all values
+        T[n][n] c; // all components
     }
 
-    @nogc this(T...)(T args) pure nothrow
+    public this(T...)(T args) @nogc pure nothrow
     {
-        import std.traits : isNumeric;
-
         static foreach (arg; args)
         {
-            static assert(isNumeric!(typeof(arg)), "all values must be numeric");
+            static assert(isNumeric!(typeof(arg)), "All values must be numeric.");
         }
 
-        static assert(args.length > 0, "no args provided");
+        static assert(args.length > 0, "No args provided.");
 
-        static assert(args.length == 1 || args.length == n*n, "number of args must be ither 1 or N*N");
+        static assert(args.length == 1 || args.length == n*n, "Number of args must be either 1 or N*N.");
 
         static if (args.length == 1)
         {
-            static foreach (i; 0..n*n)
-            {
-                v[i] = args[0];
-            }
+            v[] = args[0];
         }
         else
         {
-            static foreach (i, arg; args)
-            {
-                v[i] = arg;
-            }
+            v = [args];
         }
     }
 
     /++
-     + get the value at [i, j]
+     + Get the value at [i, j]
      +/
-    @nogc float opIndex(int i, int j) pure const nothrow
+    public T opIndex(int i, int j) @nogc pure const nothrow
     {
         return c[i][j];
     }
 
     /++
-     + set the value at [i, j]
+     + Set the value at [i, j]
      +/
-    @nogc float opIndexAssign(float value, int i, int j) pure nothrow
+    public T opIndexAssign(T value, int i, int j) @nogc pure nothrow
     {
         return c[i][j] = value;
     }
 
     /++
-     + returns this matrix * scalar
+     + Returns this matrix * scalar
      +/
-    @nogc auto opBinary(string s) (const float scalar) pure const nothrow if (s == "*")
+    public auto opBinary(string s) (const float scalar) @nogc pure const nothrow if (s == "*")
     {
-        Mat res;
+        Mat!(T, n) res;
+        res.v = v[] * scalar;
+        return res;
+    }
+
+    /++
+     + Returns this matrix * scalar
+     +/
+    public void opOpAssign(string s) (const float scalar) @nogc pure nothrow if (s == "*")
+    {
+        v[] *= scalar;
+    }
+
+    /++
+     + Returns this matrix * vector
+     +/
+    public auto opBinary(string s) (const Vec!(T, n) vector) @nogc pure const nothrow if (s == "*")
+    {
+        Vec!(T, n) res;
 
         for (int i = 0; i < n; i++)
         {
+            float sum = 0f;
             for (int j = 0; j < n; j++)
             {
-                res[i, j] = this[i, j] * scalar;
+                sum += this[i, j] * vector[j];
             }
+            res[i] = sum;
         }
 
         return res;
     }
 
     /++
-     + returns this matrix * scalar
+     + Returns this matrix * matrix
      +/
-    @nogc void opOpAssign(string s) (const float scalar) pure nothrow if (s == "*")
+    public auto opBinary(string s) (const Mat!(T, n) other) @nogc pure const nothrow if (s == "*")
     {
-        auto res = this * scalar;
-        this.v = res.v;
-    }
-
-    /++
-     + returns this matrix * vector
-     +/
-    @nogc auto opBinary(string s) (const Vec!n vector) pure const nothrow if (s == "*")
-    {
-         Vec!n res;
-
-         for (int i = 0; i < n; i++)
-         {
-             float sum = 0f;
-             for (int j = 0; j < n; j++)
-             {
-                 sum += this[i, j] * vector[j];
-             }
-             res[i] = sum;
-         }
-
-         return res;
-    }
-
-    /++
-     + returns this matrix * matrix
-     +/
-    @nogc auto opBinary(string s) (const Mat!n other) pure const nothrow if (s == "*")
-    {
-        Mat!n res;
+        Mat!(T, n) res;
 
         for (int i = 0; i < n; i++)
         {
@@ -134,20 +136,20 @@ struct Mat(ulong n) if (n >= 2)
     }
 
     /++
-     + returns this matrix * matrix
+     + Returns this matrix * matrix
      +/
-    @nogc void opOpAssign (string s) (const Mat!n other) pure nothrow if (s == "*")
+    public void opOpAssign (string s) (const Mat!(T, n) other) @nogc pure nothrow if (s == "*")
     {
         auto res = this * other;
         this.v = res.v;
     }
 
     /++
-     + returns sum or sub of two matrices
+     + Returns sum or sub of two matrices
      +/
-     @nogc auto opBinary(string s) (const Mat!n other) pure const nothrow if (s == "+" || s == "-")
+     public auto opBinary(string s) (const Mat!(T, n) other) @nogc pure const nothrow if (s == "+" || s == "-")
      {
-        Mat!n res;
+        Mat!(T, n) res;
 
         for (int i = 0; i < n; i++)
         {
@@ -161,9 +163,9 @@ struct Mat(ulong n) if (n >= 2)
      }
 
     /++
-     + internal data as a pointer, use for sending data to shaders.
+     + Internal data as a pointer, use for sending data to shaders.
      +/
-    @nogc auto ptr() pure nothrow const
+    public auto ptr() @nogc pure const nothrow
     {
         return v.ptr;
     }
@@ -172,25 +174,25 @@ struct Mat(ulong n) if (n >= 2)
 /++
  + creates an identity matrix
  +/
-@nogc Mat!n matIdentity(ulong n)() pure nothrow
+public Mat!(T, n) identity(T, ulong n)() @nogc pure nothrow
 {
-    Mat!n res;
+    Mat!(T, n) res;
     for (int i = 0; i < n; i++)
     {
         for (int j = 0; j < n; j++)
         {
-            res[i, j] = i == j ? 1f : 0f;
+            res[i, j] = i == j ? 1 : 0;
         }
     }
     return res;
 }
 
 /++
- + creates a scaling matrix
+ + Creates a scaling matrix
  +/
-@nogc Mat!n matScaling(ulong n)(Vec!(n-1) v) pure nothrow
+public Mat!(T, n) scaling(T, ulong n)(Vec!(T, n-1) v) @nogc pure nothrow
 {
-    auto res = matIdentity!n();
+    auto res = identity!(T, n);
     for (int i = 0; i + 1 < n; i++)
     {
         res[i, i] = v[i];
@@ -199,13 +201,13 @@ struct Mat(ulong n) if (n >= 2)
 }
 
 /++
- + creates a rotation matrix, angle must be in radians
+ + Creates a rotation matrix, angle in radians
  +/
-@nogc Mat4 matRotation(float angle, Vec3 axis) pure nothrow
+public auto rotation(T)(float angle, Vec!(T, 3) axis) @nogc pure nothrow
 {
     import std.math : sin, cos;
 
-    auto res = matIdentity!4();
+    auto res = identity!(T, 4)();
     float c = cos(angle);
     float c1 = 1 - c;
     float s = sin(angle);
@@ -226,11 +228,11 @@ struct Mat(ulong n) if (n >= 2)
 }
 
 /++
- + creates a translation matrix
+ + Creates a translation matrix
  +/
-@nogc auto matTranslation(ulong n)(Vec!(n-1) v) pure nothrow
+public auto translation(T, ulong n)(Vec!(T, n-1) v) @nogc pure nothrow
 {
-    auto res = matIdentity!n();
+    auto res = identity!(T, n)();
     for (int i = 0; i + 1 < n; i++)
     {
         res[i, n-1] = res[i, n-1] + v[i];
@@ -239,24 +241,24 @@ struct Mat(ulong n) if (n >= 2)
 }
 
 /++
- + creates a look_at matrix
+ + Creates a look-at matrix
  +/
-@nogc Mat4 matLookAt(Vec3 eye, Vec3 target, Vec3 up) pure nothrow
+public auto lookAt(Vec3 eye, Vec3 target, Vec3 up) @nogc pure nothrow
 {
     Vec3 z = (eye - target).normalized();
-    Vec3 x = vecCross(-up, z).normalized();
-    Vec3 y = vecCross(z, -x);
+    Vec3 x = cross(-up, z).normalized();
+    Vec3 y = cross(z, -x);
 
-    return Mat4(-x.x, -x.y, -x.z,  vecDot!3(x, eye),
-                 y.x,  y.y,  y.z, -vecDot!3(y, eye),
-                 z.x,  z.y,  z.z, -vecDot!3(z, eye),
-                 0f,   0f,   0f,   1f);
+    return Mat4(-x.x, -x.y, -x.z,  dot(x, eye),
+                 y.x,  y.y,  y.z, -dot(y, eye),
+                 z.x,  z.y,  z.z, -dot(z, eye),
+                 0,    0,    0,    1);
 }
 
 /++
- + creates an orthographic projection matrix
+ + Creates an orthographic projection matrix
  +/
-@nogc Mat4 matOrthographic(float left, float right, float bottom, float top, float near, float far) pure nothrow
+public auto orthographic(float left, float right, float bottom, float top, float near, float far) @nogc pure nothrow
 {
     float dx = right - left;
     float dy = top - bottom;
@@ -273,9 +275,9 @@ struct Mat(ulong n) if (n >= 2)
 }
 
 /++
- + creates a perspective projection matrix
+ + Creates a perspective projection matrix
  +/
-@nogc Mat4 matPerspective(float fov_in_radians, float aspect, float near, float far) pure nothrow
+public auto perspective(float fov_in_radians, float aspect, float near, float far) @nogc pure nothrow
 {
     import core.stdc.math : tan;
 
@@ -289,9 +291,9 @@ struct Mat(ulong n) if (n >= 2)
 }
 
 /++
- + returns the inverse of the provided matrix, if no inverse can be found it returns a mat4(inf)
+ + Returns the inverse of the provided matrix, if no inverse can be found it returns a `Mat4(inf)`
  +/
-@nogc Mat4 matInverse(const Mat4 a) pure nothrow
+public Mat4 inverse(const Mat4 a) @nogc pure nothrow
 {
     Mat4 t = a;
 
@@ -363,87 +365,97 @@ struct Mat(ulong n) if (n >= 2)
     return res;
 }
 
+@("Creating matrices")
 unittest
 {
     auto t1 = Mat2(2f);
-    auto t2 = Mat2(1f, 2f, 3f, 4f);
+    const t2 = Mat2(1f, 2f, 3f, 4f);
 
-    assert(t1[0, 0] == 2f);
-    assert(t1[0, 1] == 2f);
-    assert(t1[1, 0] == 2f);
-    assert(t1[1, 1] == 2f);
+    t1[0, 0].should.equal(2f);
+    t1[0, 1].should.equal(2f);
+    t1[1, 0].should.equal(2f);
+    t1[1, 1].should.equal(2f);
 
-    assert(t2[0, 0] == 1f);
-    assert(t2[0, 1] == 2f);
-    assert(t2[1, 0] == 3f);
-    assert(t2[1, 1] == 4f);
+    t2[0, 0].should.equal(1f);
+    t2[0, 1].should.equal(2f);
+    t2[1, 0].should.equal(3f);
+    t2[1, 1].should.equal(4f);
 
     t1[0, 0] = 5f;
-    assert(t1[0, 0] == 5f);
+    t1[0, 0].should.equal(5f);
 }
 
+@("Matrix multiplication by scalar")
 unittest
 {
-    auto t1 = Mat2(1f, 2f, 3f, 4f);
-    assert(t1 * 2f == Mat2(2f, 4f, 6f, 8f));
+    const t1 = Mat2(1f, 2f, 3f, 4f);
+    (t1 * 2f).should.equal(Mat2(2, 4, 6, 8));
 }
 
+@("Matrix multiplication by vector")
+unittest
+{
+    const m1 = Mat2(1f, 2f, 3f, 4f);
+    const v1 = Vec2(4f, 6f);
+    (m1 * v1).should.equal(Vec2(16f, 36f));
+}
+
+@("Matrix multiplication by matrix")
 unittest
 {
     auto m1 = Mat2(1f, 2f, 3f, 4f);
-    auto v1 = Vec2(4f, 6f);
-    assert(m1 * v1 == Vec2(16f, 36f));
-}
-
-unittest
-{
-    auto m1 = Mat2(1f, 2f, 3f, 4f);
-    auto m2 = Mat2(5f, 6f, 7f, 8f);
-    assert(m1 * m2 == Mat2(19f, 22f, 43f, 50f));
+    const m2 = Mat2(5f, 6f, 7f, 8f);
+    (m1 * m2).should.equal(Mat2(19, 22, 43, 50));
     m1 *= m2;
-    assert(m1 == Mat2(19f, 22f, 43f, 50f));
+    m1.should.equal(Mat2(19, 22, 43, 50));
 }
 
+@("Adding 2 matrices")
 unittest 
 {
-    auto m1 = Mat2(1f, 2f, 3f, 4f);
-    auto m2 = Mat2(5f, 6f, 7f, 8f);
-    assert(m1 + m2 == Mat2(6f, 8f, 10f, 12f));
+    const m1 = Mat2(1f, 2f, 3f, 4f);
+    const m2 = Mat2(5f, 6f, 7f, 8f);
+    (m1 + m2).should.equal(Mat2(6, 8, 10, 12));
 }
 
+@("Subtracting 2 matrices")
 unittest 
 {
-    auto m1 = Mat2(5f, 6f, 7f, 8f);
-    auto m2 = Mat2(1f, 2f, 3f, 4f);
-    assert(m1 - m2 == Mat2(4f));
+    const m1 = Mat2(5f, 6f, 7f, 8f);
+    const m2 = Mat2(1f, 2f, 3f, 4f);
+    (m1 - m2).should.equal(Mat2(4));
 }
 
+@("Identity matrix")
 unittest
 {
-    auto m1 = matIdentity!2();
-    assert(m1 == Mat2(1f, 0f, 0f, 1f));
+    const m1 = identity!(float, 2)();
+    m1.should.equal(Mat2(1, 0, 0, 1));
 }
 
+@("Scaling matrix")
 unittest
 {
-    auto scaling = matScaling!2(Vec!1(3f));
-    assert(scaling == Mat2(3f, 0f, 0f, 1f));
+    const scaling = scaling!(float, 2)(Vec!(float, 1)(3f));
+    scaling.should.equal(Mat2(3, 0, 0, 1));
 
-    auto m1 = Mat2(1f, 2f, 3f, 4f);
-    assert(m1 * scaling == Mat2(3f, 2f, 9f, 4f));
+    const m1 = Mat2(1f, 2f, 3f, 4f);
+    (m1 * scaling).should.equal(Mat2(3, 2, 9, 4));
 }
 
+@("Translation matrix")
 unittest
 {
-    auto trans = matTranslation!3(Vec2(4f));
-    assert(trans == Mat3(1f, 0f, 4f, 0f, 1f, 4f, 0f, 0f, 1f));
+    const trans = translation!(float, 3)(Vec2(4f));
+    trans.should.equal(Mat3(1, 0, 4, 0, 1, 4, 0, 0, 1));
 
-    auto m1 = Mat3(3f);
-    assert(m1 * trans == Mat3(3f, 3f, 27f, 3f, 3f, 27f, 3f, 3f, 27f));
+    const m1 = Mat3(3f);
+    (m1 * trans).should.equal(Mat3(3, 3, 27, 3, 3, 27, 3, 3, 27));
 }
 
+@("Matrix inverse")
 unittest 
 {
-    auto m1 = Mat4(5f, 6f, 6f, 8f, 2f, 2f, 2f, 8f, 6f, 6f, 2f, 8f, 2f, 3f, 6f, 7f);
-    assert(matInverse(m1) * m1 == matIdentity!4());
+    const m1 = Mat4(5f, 6f, 6f, 8f, 2f, 2f, 2f, 8f, 6f, 6f, 2f, 8f, 2f, 3f, 6f, 7f);
+    (inverse(m1) * m1).should.equal(identity!(float, 4));
 }

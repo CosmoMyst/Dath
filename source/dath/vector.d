@@ -1,88 +1,119 @@
 module dath.vector;
 
-import dath.vector_int;
+version(unittest) import fluent.asserts;
 
-alias Vec2 = Vec!2;
-alias Vec3 = Vec!3;
-alias Vec4 = Vec!4;
+import std.traits;
+
+alias Vec2f = Vec!(float, 2);
+alias Vec3f = Vec!(float, 3);
+alias Vec4f = Vec!(float, 4);
+
+alias Vec2 = Vec2f;
+alias Vec3 = Vec3f;
+alias Vec4 = Vec4f;
+
+alias Vec2d = Vec!(double, 2);
+alias Vec3d = Vec!(double, 3);
+alias Vec4d = Vec!(double, 4);
+
+alias Vec2i = Vec!(int, 2);
+alias Vec3i = Vec!(int, 3);
+alias Vec4i = Vec!(int, 4);
+
+alias Vec2u = Vec!(uint, 2);
+alias Vec3u = Vec!(uint, 3);
+alias Vec4u = Vec!(uint, 4);
 
 /++
- + vec struct with optional amount of components.
+ + Numeric Vector type with an optional amount of components.
  +/
-struct Vec(ulong n) if (n >= 1)
+public struct Vec(T, ulong n) if (n >= 1 && isNumeric!T)
 {
     union {
         /++
-         + internal data
+         + Internal data.
          +/
-        float[n] v;
+        T[n] v;
 
         struct
         {
+            // Predefined component names.
+
             static if (n >= 1)
             {
-                float x;
+                T x;
             }
 
             static if (n >= 2)
             {
-                float y;
+                T y;
             }
 
             static if (n >= 3)
             {
-                float z;
+                T z;
             }
 
             static if (n >= 4)
             {
-                float w;
+                T w;
             }
         }
     }
 
-    @nogc this(T...)(T args) pure nothrow
-    {
-        import std.traits : isNumeric;
+    private alias _t = T;
+    private enum _n = n;
 
+    public this(U)(U[] elements) @nogc pure nothrow
+    {
+        assert(isNumeric!U, "All components must be numeric.");
+
+        assert(elements.length > 0, "No components provided.");
+
+        assert(elements.length == 1 || elements.length == n,
+            "Number of components must be either 1 or the number of components the vector holds.");
+        
+        v = elements;
+    }
+
+    public this(U...)(U args) @nogc pure nothrow
+    {
         static foreach (arg; args)
         {
-            static assert(isNumeric!(typeof(arg)), "all values must be numeric");
+            static assert(isNumeric!(typeof(arg)), "All components must be numeric");
         }
 
-        static assert(args.length > 0, "no args provided");
+        static assert(args.length > 0, "No components provided.");
 
-        static assert(args.length == 1 || args.length == n, "number of args must be either 1 or number of components");
+        static assert(args.length == 1 || args.length == n,
+            "Number of components must be either 1 or the number of components the vector holds.");
 
         static if (args.length == 1)
         {
-            static foreach (i; 0..n)
-            {
-                v[i] = args[0];
-            }
+            v[] = args[0];
         }
         else
         {
-            static foreach (i, arg; args)
-            {
-                v[i] = arg;
-            }
+            v = [args];
         }
     }
 
     /++
-     + internal data as a pointer, use for sending data to shaders.
+     + Internal data as a pointer, use for sending data to shaders.
      +/
-    @nogc auto ptr() pure nothrow const
+    public auto ptr() @nogc pure nothrow const
     {
         return v.ptr;
     }
 
-    @nogc float length() pure nothrow const
+    /++ 
+     + Vector magnitude.
+     +/
+    public real magnitude() @nogc pure nothrow const
     {
         import std.math : sqrt;
 
-        float sum = 0;
+        real sum = 0;
         for (int i = 0; i < n; i++)
         {
             sum += v[i] * v[i];
@@ -92,225 +123,254 @@ struct Vec(ulong n) if (n >= 1)
     }
 
     /++
-     + normalizes the vectors. changes the current struct!
+     + Normalizes the vectors. Changes the current struct!
      +/
-    @nogc void normalize() pure nothrow
+    public void normalize() @nogc pure nothrow
     {
         this = normalized();
     }
 
     /++
-     + returns the normalized vector. doesn't change the current struct!
+     + Returns the normalized vector. Doesn't change the current struct!
      +/
-    @nogc Vec!n normalized() pure nothrow const
+    public Vec!(T, n) normalized() @nogc pure nothrow const
     {
-        if (length() == 0)
+        real mag = magnitude();
+
+        if (mag == 0)
         {
-            return Vec!n(0f);
+            return Vec!(T, n)(0);
         }
-        return this / length();
+
+        return this / mag;
     }
 
     /++
-     + returns the negated vector.
+     + Returns the negated vector.
      +/
-    @nogc Vec!n opUnary(string s)() const if (s == "-")
+    public Vec!(T, n) opUnary(string s)() @nogc pure nothrow const if (s == "-")
     {
-        Vec!n res;
-        for (int i = 0; i < n; i++)
-        {
-            res.v[i] = -v[i];
-        }
+        Vec!(T, n) res;
+        res.v = -v[];
         return res;
     }
 
     /++
-     + returns the mul of this * scalar
+     + Returns the mul of this * scalar.
      +/
-    @nogc Vec!n opBinary(string s) (const float scalar) const if (s == "*")
+    public Vec!(T, n) opBinary(string s) (const float scalar) @nogc pure nothrow const if (s == "*")
     {
-        Vec!n res;
-        for (int i = 0; i < n; i++)
-        {
-            res[i] = this[i] * scalar;
-        }
+        Vec!(T, n) res;
+        res.v = v[] * scalar;
         return res;
     }
 
-    @nogc void opOpAssign(string s) (const float scalar) pure nothrow if (s == "*")
+    /++
+     + Returns the mul of this * scalar.
+     +/
+    public void opOpAssign(string s) (const float scalar) @nogc pure nothrow if (s == "*")
     {
-        auto res = this * scalar;
-        this.v = res.v;
+        v[] *= scalar;
     }
 
     /++
-     + returns the sum of this + scalar
+     + Returns the sum of this + scalar.
      +/
-    @nogc Vec!n opBinary(string s) (const float scalar) const if (s == "+")
+    public Vec!(T, n) opBinary(string s) (const float scalar) @nogc pure nothrow const if (s == "+")
     {
-        Vec!n res;
-        for (int i = 0; i < n; i++)
-        {
-            res[i] = this[i] + scalar;
-        }
+        Vec!(T, n) res;
+        res.v = v[] + scalar;
         return res;
     }
 
-    @nogc void opOpAssign(string s) (const float scalar) if (s == "+")
+    /++
+     + Returns the sum of this + scalar.
+     +/
+    public void opOpAssign(string s) (const float scalar) @nogc pure nothrow if (s == "+")
     {
-        auto res = this + scalar;
-        this.v = res.v;
+        v[] += scalar;
     }
 
     /++
-     + returns the sub of this - scalar
+     + Returns the sub of this - scalar.
      +/
-    @nogc Vec!n opBinary(string s) (const float scalar) const if (s == "-")
+    public Vec!(T, n) opBinary(string s) (const float scalar) @nogc pure nothrow const if (s == "-")
     {
-        Vec!n res;
-        for (int i = 0; i < n; i++)
-        {
-            res[i] = this[i] - scalar;
-        }
+        Vec!(T, n) res;
+        res.v = v[] - scalar;
         return res;
     }
 
-    @nogc void opOpAssign(string s) (const float scalar) if (s == "-")
+    /++
+     + Returns the sub of this - scalar.
+     +/
+    public void opOpAssign(string s) (const float scalar) @nogc pure nothrow if (s == "-")
     {
-        auto res = this - scalar;
-        this.v = res.v;
+        v[] -= scalar;
     }
 
     /++
-     + returns the div of this / scalar.
+     + Returns the div of this / scalar.
      +/
-    @nogc Vec!n opBinary(string s) (in float scalar) const if (s == "/")
+    public Vec!(T, n) opBinary(string s) (in float scalar) @nogc pure nothrow const if (s == "/")
     {
-        Vec!n res;
-        for (int i = 0; i < n; i++)
-        {
-            res.v[i] = v[i] / scalar;
-        }
+        Vec!(T, n) res;
+        res.v = v[] / cast(T) scalar;
         return res;
     }
 
-    @nogc void opOpAssign(string s) (in float scalar) if (s == "/")
+    /++
+     + Returns the div of this / scalar.
+     +/
+    public void opOpAssign(string s) (in float scalar) @nogc pure nothrow if (s == "/")
     {
-        auto res = this / scalar;
-        this.v = res.v;
+        v[] /= scalar;
     }
 
     /++
-     + returns the sum of 2 vectors
+     + Returns the sum of 2 vectors.
      +/
-    @nogc Vec!n opBinary(string s) (const Vec!n other) const if (s == "+")
+    public Vec!(T, n) opBinary(string s) (const Vec!(T, n) other) @nogc pure nothrow const if (s == "+")
     {
-        Vec!n res;
-        for (int i = 0; i < n; i++) {
-            res.v[i] = v[i] + other.v[i];
-        }
+        Vec!(T, n) res;
+        res.v = v[] + other.v[];
         return res;
     }
 
-    @nogc void opOpAssign(string s) (const Vec!n other) if (s == "+")
+    /++
+     + Returns the sum of 2 vectors.
+     +/
+    public void opOpAssign(string s) (const Vec!(T, n) other) @nogc pure nothrow if (s == "+")
     {
-        auto res = this + other;
-        this.v = res.v;
+        v[] += other.v[];
     }
 
     /++
-     + returns the sub of 2 vectors.
+     + Returns the sub of 2 vectors.
      +/
-    @nogc Vec!n opBinary(string s) (const Vec!n other) const if (s == "-")
+    public Vec!(T, n) opBinary(string s) (const Vec!(T, n) other) @nogc pure nothrow const if (s == "-")
     {
-        Vec!n res;
-        for (int i = 0; i < n; i++)
-        {
-            res.v[i] = v[i] - other.v[i];
-        }
+        Vec!(T, n) res;
+        res.v = v[] - other.v[];
         return res;
     }
 
-    @nogc void opOpAssign(string s) (const Vec!n other) if (s == "-")
+    /++
+     + Returns the sub of 2 vectors.
+     +/
+    public void opOpAssign(string s) (const Vec!(T, n) other) @nogc pure nothrow if (s == "-")
     {
-        auto res = this - other;
-        this.v = res.v;
+        v[] -= other.v[];
     }
 
     /++
-     + returns the mul of 2 vectors.
+     + Returns the mul of 2 vectors.
      +/
-    @nogc Vec!n opBinary(string s) (const Vec!n other) const if (s == "*")
+    public Vec!(T, n) opBinary(string s) (const Vec!(T, n) other) @nogc pure nothrow const if (s == "*")
     {
-        Vec!n res;
-        for (int i = 0; i < n; i++)
-        {
-            res.v[i] = v[i] * other.v[i];
-        }
+        Vec!(T, n) res;
+        res.v = v[] * other.v[];
         return res;
     }
 
-    @nogc void opOpAssign(string s) (const Vec!n other) if (s == "*")
+    /++
+     + Returns the mul of 2 vectors.
+     +/
+    public void opOpAssign(string s) (const Vec!(T, n) other) @nogc pure nothrow if (s == "*")
     {
-        auto res = this * other;
-        this.v = res.v;
+        v[] *= other.v[];
     }
 
     /++
-     + returns the div of 2 vectors.
+     + Returns the div of 2 vectors.
      +/
-    @nogc Vec!n opBinary(string s) (const Vec!n other) const if (s == "/")
+    public Vec!(T, n) opBinary(string s) (const Vec!(T, n) other) @nogc pure nothrow const if (s == "/")
     {
-        Vec!n res;
-        for (int i = 0; i < n; i++)
-        {
-            res.v[i] = v[i] / other.v[i];
-        }
+        Vec!(T, n) res;
+        res.v = v[] / other.v[];
         return res;
     }
 
-    @nogc void opOpAssign(string s) (const Vec!n other) if (s == "/")
+    /++
+     + Returns the div of 2 vectors.
+     +/
+    public void opOpAssign(string s) (const Vec!(T, n) other) @nogc pure nothrow if (s == "/")
     {
-        auto res = this / other;
-        this.v = res.v;
+        v[] /= other.v[];
     }
 
     /++
-     + get the nth component
+     + Get the N-th component.
      +/
-    @nogc float opIndex(int n) pure const nothrow
+    public T opIndex(int n) @nogc pure const nothrow
     {
         return v[n];
     }
 
     /++
-     + set the nth component
+     + Get the whole internal array.
      +/
-    @nogc float opIndexAssign(float value, int n) pure nothrow
+    public T[n] opIndex() @nogc pure const nothrow
+    {
+        return v[];
+    }
+
+    /++
+     + Set the nth component
+     +/
+    public T opIndexAssign(T value, int n) @nogc pure nothrow
     {
         return v[n] = value;
     }
 
     /++
-     + cast to an int vector
+     + Cast to a vector of a different type.
      +/
-    @nogc VecI!n opCast(T)() pure const nothrow if (is(T == VecI!n))
+    public U opCast(U)() pure nothrow const if (is(U : Vec!R, R...) && (U._n == n))
     {
-        VecI!n res;
-        for (int i = 0; i < n; i++)
+        U res;
+        foreach (i, el; v)
         {
-            res.v[i] = cast(int) v[i];
+            res.v[i] = cast(U._t) v[i];
         }
         return res;
+    }
+
+    /++ 
+     + Swizzling.
+     +/
+    public Vec!(T, swizzle.length) opDispatch(const string swizzle)() @nogc const pure nothrow
+    {
+        T[swizzle.length] arr;
+
+        static foreach (i, c; swizzle)
+        {
+            static assert(coordToIdx!(c) <= n-1, "Trying to swizzle the " ~ c ~ " component, but this vector is too small.");
+
+            arr[i] = v[coordToIdx!(c)];
+        }
+
+        Vec!(T, swizzle.length) res;
+        res.v = arr;
+        return res;
+    }
+
+    private template coordToIdx(char c)
+    {
+        static if (c == 'x') enum coordToIdx = 0;
+        else static if (c == 'y') enum coordToIdx = 1;
+        else static if (c == 'z') enum coordToIdx = 2;
+        else static if (c == 'w') enum coordToIdx = 3;
+        else static assert(false, "Unknown vector component " ~ c);
     }
 }
 
 /++
- + returns the dot product of 2 vectors.
+ + Returns the dot product of 2 vectors.
  +/
-@nogc float vecDot(ulong n)(Vec!n a, Vec!n b) pure nothrow
+public real dot(T, ulong n)(Vec!(T, n) a, Vec!(T, n) b) @nogc pure nothrow
 {
-    float res = 0f;
+    real res = 0f;
     static foreach (i; 0..n)
     {
         res += a.v[i] * b.v[i];
@@ -319,76 +379,165 @@ struct Vec(ulong n) if (n >= 1)
 }
 
 /++
- + returns the cross product of 2 vectors.
+ + Returns the cross product of 2 Vec3. The result is always a float Vec3.
  +/
-@nogc Vec!3 vecCross(Vec!3 a, Vec!3 b) pure nothrow
+public Vec!(float, 3) cross(T)(Vec!(T, 3) a, Vec!(T, 3) b) @nogc pure nothrow
 {
-    return Vec!3(a.y * b.z - a.z * b.y,
-                 a.z * b.x - a.x * b.z,
-                 a.x * b.y - a.y * b.x);
+    return Vec!(float, 3)(a.y * b.z - a.z * b.y,
+                          a.z * b.x - a.x * b.z,
+                          a.x * b.y - a.y * b.x);
 }
 
+@("Creating vectors")
 unittest
 {
-    auto t1 = Vec2(2f, 3f);
+    const t1 = Vec2(2f, 3f);
 
-    assert(t1.x == 2f);
-    assert(t1.y == 3f);
+    t1.x.should.equal(2f);
+    t1.y.should.equal(3f);
 
-    auto t2 = Vec2(2f);
-    assert(t2.x == 2f);
-    assert(t2.y == 2f);
+    const t2 = Vec2(2f);
+
+    t2.x.should.equal(2f);
+    t2.y.should.equal(2f);
+
+    const t3 = Vec4d(1f, 2f, 3f, 4f);
+
+    t3.x.should.equal(1f);
+    t3.y.should.equal(2f);
+    t3.z.should.equal(3f);
+    t3.w.should.equal(4f);
+
+    const t4 = Vec2i(5, 6);
+
+    t4.x.should.equal(5);
+    t4.y.should.equal(6);
+
+    const float[] arr = [1f, 2f];
+    const t5 = Vec2(arr);
+
+    t5.x.should.equal(1);
+    t5.y.should.equal(2);
 }
 
+@("Vector magnitude")
 unittest
 {
-    auto t1 = Vec2(2, 3);
+    const t1 = Vec3(5, 6, 8);
 
-    assert(t1 * 2 == Vec2(4, 6));
+    t1.magnitude().should.be.approximately(11.180, 0.01);
+
+    const t2 = Vec2d(65, 76);
+
+    t2.magnitude().should.be.approximately(100, 0.01);
 }
 
+@("Vector normalization")
 unittest
 {
-    auto t1 = Vec3(5f, 2f, 6f);
-    assert(t1.length() == 8.06225774829855f);
+    const t1 = Vec3(75, 64, 23);
+    const t2 = t1.normalized();
+
+    t2.x.should.be.approximately(0.74, 0.01);
+    t2.y.should.be.approximately(0.63, 0.01);
+    t2.z.should.be.approximately(0.22, 0.01);
 }
 
+@("Vector scalar operations")
 unittest
 {
-    auto t1 = Vec3(2f, 5f, 3f);
-    auto t2 = Vec3(7f, 4f, 9f);
-    assert(vecDot!3(t1, t2) == 61);
+    auto t1 = Vec3(63, 75, 38);
+
+    // negation
+    (-t1).should.equal(Vec3(-63, -75, -38));
+
+    // multiplication with a scalar
+    (t1 * 2).should.equal(Vec3(126, 150, 76));
+    t1 *= 3;
+    t1.should.equal(Vec3(189, 225, 114));
+
+    // sum with a scalar
+    (t1 + 2).should.equal(Vec3(191, 227, 116));
+    t1 += 3;
+    t1.should.equal(Vec3(192, 228, 117));
+
+    // sub with a scalar
+    (t1 - 2).should.equal(Vec3(190, 226, 115));
+    t1 -= 3;
+    t1.should.equal(Vec3(189, 225, 114));
+
+    // division with a scalar
+    (t1 / 2).should.equal(Vec3(94.5, 112.5, 57));
+    t1 /= 3;
+    t1.should.equal(Vec3(63, 75, 38));
 }
 
+@("Vector operations with other vectors")
 unittest
 {
-    auto t1 = Vec3(2f, 3f, 4f);
-    auto t2 = Vec3(5f, 6f, 7f);
-    assert(vecCross(t1, t2) == Vec3(-3f, 6f, -3f));
+    auto t1 = Vec3(63, 75, 38);
+    auto t2 = Vec3(37, 98, 100);
+
+    // sum of 2 vectors
+    (t1 + t2).should.equal(Vec3(100, 173, 138));
+    t1 += t2;
+    t1.should.equal(Vec3(100, 173, 138));
+
+    // sub of 2 vectors
+    (t1 - t2).should.equal(Vec3(63, 75, 38));
+    t1 -= t2;
+    t1.should.equal(Vec3(63, 75, 38));
+
+    // multiplication of 2 vectors
+    (t1 * t2).should.equal(Vec3(2331, 7350, 3800));
+    t1 *= t2;
+    t1.should.equal(Vec3(2331, 7350, 3800));
+
+    // division of 2 vectors
+    (t1 / t2).should.equal(Vec3(63, 75, 38));
+    t1 /= t2;
+    t1.should.equal(Vec3(63, 75, 38));
 }
 
+@("Vector components and casting")
 unittest
 {
-    auto t1 = Vec3(5f, 2f, 7f);
-    assert(-t1 == Vec3(-5f, -2f, -7f));
+    auto t1 = Vec3(63, 75, 38);
+
+    t1[0].should.equal(63);
+
+    t1[1] = 100;
+    t1[1].should.equal(100);
+    t1.y.should.equal(100);
+
+    auto t2 = cast(Vec3d) t1;
+    t2.should.equal(Vec3d(63, 100, 38));
+
+    auto t3 = cast(Vec3i) t2;
+    t3.should.equal(Vec3i(63, 100, 38));
 }
 
+@("Vector dot and cross product")
 unittest
 {
-    auto t1 = Vec3(5f, 2f, 7f);
-    auto t2 = Vec3(3f, 7f, 2f);
-    assert(t1 - t2 == Vec3(2f, -5f, 5f));
+    const t1 = Vec3(63, 75, 38);
+    const t2 = Vec3(37, 98, 100);
+
+    t1.dot(t2).should.equal(13_481);
+
+    t1.cross(t2).should.equal(Vec3(3776, -4894, 3399));
 }
 
+@("Vector swizzling")
 unittest
 {
-    auto t1 = Vec3(1f, 2f, 3f);
-    assert(t1 * 2 == Vec3(2f, 4f, 6f));
-}
+    const t1 = Vec3(4, 5, 6);
+    const t2 = t1.xz;
 
-unittest
-{
-    auto t1 = Vec2(1f, 2f);
-    auto t2 = cast(VecI2) t1;
-    assert(t2.x == 1 && t2.y == 2);
+    t2.should.equal(Vec2(4, 6));
+
+    const t3 = Vec4(1f, 2f, 3f, 4f);
+    const t4 = t3.xxyyww;
+
+    t4.should.equal(Vec!(float, 6)(1f, 1f, 2f, 2f, 4f, 4f));
 }

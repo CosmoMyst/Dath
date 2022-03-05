@@ -1,6 +1,14 @@
 {
 	"fileVersion": 1,
 	"versions": {
-		"intel-intrinsics": "1.2.5"
+		"ddmp": "0.0.1-0.dev.3",
+		"dshould": "1.5.0",
+		"fluent-asserts": "0.13.3",
+		"intel-intrinsics": "1.2.5",
+		"libdparse": "0.14.0",
+		"prettyprint": "1.0.7",
+		"silly": "1.1.1",
+		"stdx-allocator": "2.77.5",
+		"unit-threaded": "1.1.0"
 	}
 }

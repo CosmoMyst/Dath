@@ -26,6 +26,7 @@ bool intersects(T)(RectImpl!T a, RectImpl!T b) @nogc
     return false;
 }
 
+@("Rect creation and intersection")
 unittest
 {
     Rect a = Rect(0, 0, 10, 10);
