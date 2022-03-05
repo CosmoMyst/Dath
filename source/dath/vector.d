@@ -59,6 +59,31 @@ public struct Vec(T, ulong n) if (n >= 1 && isNumeric!T)
                 T w;
             }
         }
+
+        struct
+        {
+            // Predefined components names for colors.   
+
+            static if (n >= 1)
+            {
+                T r;
+            }
+
+            static if (n >= 2)
+            {
+                T g;
+            }
+
+            static if (n >= 3)
+            {
+                T b;
+            }
+
+            static if (n >= 4)
+            {
+                T a;
+            }
+        }
     }
 
     private alias _t = T;
@@ -359,9 +384,13 @@ public struct Vec(T, ulong n) if (n >= 1 && isNumeric!T)
     private template coordToIdx(char c)
     {
         static if (c == 'x') enum coordToIdx = 0;
+        else static if (c == 'r') enum coordToIdx = 0;
         else static if (c == 'y') enum coordToIdx = 1;
+        else static if (c == 'g') enum coordToIdx = 1;
         else static if (c == 'z') enum coordToIdx = 2;
+        else static if (c == 'b') enum coordToIdx = 1;
         else static if (c == 'w') enum coordToIdx = 3;
+        else static if (c == 'a') enum coordToIdx = 3;
         else static assert(false, "Unknown vector component " ~ c);
     }
 }
@@ -396,6 +425,9 @@ unittest
 
     t1.x.should.equal(2f);
     t1.y.should.equal(3f);
+
+    t1.r.should.equal(2f);
+    t1.g.should.equal(3f);
 
     const t2 = Vec2(2f);
 
