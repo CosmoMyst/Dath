@@ -573,4 +573,12 @@ unittest
     const t4 = t3.xxyyww;
 
     t4.should.equal(Vec!(float, 6)(1f, 1f, 2f, 2f, 4f, 4f));
+
+    // rgb swizzling because why not
+    const t5 = t3.rrr;
+    t5.should.equal(Vec3(1f));
+
+    // rgba mixed with xyzw because why not
+    const t6 = t3.rrzz;
+    t6.should.equal(Vec4(1f, 1f, 3f, 3f));
 }
