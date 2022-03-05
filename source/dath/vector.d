@@ -115,11 +115,25 @@ public struct Vec(T, ulong n) if (n >= 1 && isNumeric!T)
 
         static if (args.length == 1)
         {
-            v[] = args[0];
+            static if (!is(T == typeof(args[0])))
+            {
+                v[] = cast(T) args[0];
+            }
+            else
+            {
+                v[] = args[0];
+            }
         }
         else
         {
-            v = [args];
+            static if (!is(T == typeof(args[0])))
+            {
+                v = cast(T[]) [args];
+            }
+            else
+            {
+                v = [args];
+            }
         }
     }
 
