@@ -1,19 +1,27 @@
 module dath.rect;
 
-public alias Rect = RectImpl!float;
-public alias RectI = RectImpl!int;
+import std.traits;
+
+public alias Rectf = Rect!float;
+public alias Rectd = Rect!double;
+public alias Recti = Rect!int;
+public alias Rectu = Rect!uint;
 
 /++
- + rectangle definition, origin at upper left.
+ + Rectangle definition, origin at upper left.
  +/
-struct RectImpl(T) {
+public struct Rect(T) if (isNumeric!T)
+{
     T x;
     T y;
     T w;
     T h;
 }
 
-bool intersects(T)(RectImpl!T a, RectImpl!T b) @nogc
+/++ 
+ + Checks if two rectangles intersect.
+ +/
+public bool intersects(T)(const Rect!T a, const Rect!T b) @nogc pure nothrow
 {
     if (a.x < b.x + b.w &&
         a.x + a.w > b.x &&
@@ -29,7 +37,7 @@ bool intersects(T)(RectImpl!T a, RectImpl!T b) @nogc
 @("Rect creation and intersection")
 unittest
 {
-    Rect a = Rect(0, 0, 10, 10);
-    Rect b = Rect(5, 5, 10, 10);
+    Rectf a = Rectf(0, 0, 10, 10);
+    Rectf b = Rectf(5, 5, 10, 10);
     assert(intersects(a, b));
 }

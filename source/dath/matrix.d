@@ -6,30 +6,30 @@ import std.traits;
 import dath.core;
 import dath.vector;
 
-alias Mat2f = Mat!(float, 2);
-alias Mat3f = Mat!(float, 3);
-alias Mat4f = Mat!(float, 4);
+public alias Mat2f = Mat!(float, 2);
+public alias Mat3f = Mat!(float, 3);
+public alias Mat4f = Mat!(float, 4);
 
-alias Mat2 = Mat2f;
-alias Mat3 = Mat3f;
-alias Mat4 = Mat4f;
+public alias Mat2 = Mat2f;
+public alias Mat3 = Mat3f;
+public alias Mat4 = Mat4f;
 
-alias Mat2d = Mat!(double, 2);
-alias Mat3d = Mat!(double, 3);
-alias Mat4d = Mat!(double, 4);
+public alias Mat2d = Mat!(double, 2);
+public alias Mat3d = Mat!(double, 3);
+public alias Mat4d = Mat!(double, 4);
 
-alias Mat2i = Mat!(int, 2);
-alias Mat3i = Mat!(int, 3);
-alias Mat4i = Mat!(int, 4);
+public alias Mat2i = Mat!(int, 2);
+public alias Mat3i = Mat!(int, 3);
+public alias Mat4i = Mat!(int, 4);
 
-alias Mat2u = Mat!(uint, 2);
-alias Mat3u = Mat!(uint, 3);
-alias Mat4u = Mat!(uint, 4);
+public alias Mat2u = Mat!(uint, 2);
+public alias Mat3u = Mat!(uint, 3);
+public alias Mat4u = Mat!(uint, 4);
 
 /++
  + A square NxN matrix. Supports any numeric type.
  +/
-struct Mat(T, ulong n) if (n >= 2 && isNumeric!T)
+public struct Mat(T, ulong n) if (n >= 2 && isNumeric!T)
 {
     union
     {
@@ -147,8 +147,8 @@ struct Mat(T, ulong n) if (n >= 2 && isNumeric!T)
     /++
      + Returns sum or sub of two matrices
      +/
-     public auto opBinary(string s) (const Mat!(T, n) other) @nogc pure const nothrow if (s == "+" || s == "-")
-     {
+    public auto opBinary(string s)(const Mat!(T, n) other) @nogc pure const nothrow if (s == "+" || s == "-")
+    {
         Mat!(T, n) res;
 
         for (int i = 0; i < n; i++)
@@ -160,7 +160,7 @@ struct Mat(T, ulong n) if (n >= 2 && isNumeric!T)
         }
 
         return res;
-     }
+    }
 
     /++
      + Internal data as a pointer, use for sending data to shaders.

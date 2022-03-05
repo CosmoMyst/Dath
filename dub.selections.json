@@ -9,6 +9,6 @@
 		"prettyprint": "1.0.7",
 		"silly": "1.1.1",
 		"stdx-allocator": "2.77.5",
-		"unit-threaded": "1.1.0"
+		"unit-threaded": "2.0.3"
 	}
 }

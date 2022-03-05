@@ -4,25 +4,25 @@ version(unittest) import fluent.asserts;
 
 import std.traits;
 
-alias Vec2f = Vec!(float, 2);
-alias Vec3f = Vec!(float, 3);
-alias Vec4f = Vec!(float, 4);
+public alias Vec2f = Vec!(float, 2);
+public alias Vec3f = Vec!(float, 3);
+public alias Vec4f = Vec!(float, 4);
 
-alias Vec2 = Vec2f;
-alias Vec3 = Vec3f;
-alias Vec4 = Vec4f;
+public alias Vec2 = Vec2f;
+public alias Vec3 = Vec3f;
+public alias Vec4 = Vec4f;
 
-alias Vec2d = Vec!(double, 2);
-alias Vec3d = Vec!(double, 3);
-alias Vec4d = Vec!(double, 4);
+public alias Vec2d = Vec!(double, 2);
+public alias Vec3d = Vec!(double, 3);
+public alias Vec4d = Vec!(double, 4);
 
-alias Vec2i = Vec!(int, 2);
-alias Vec3i = Vec!(int, 3);
-alias Vec4i = Vec!(int, 4);
+public alias Vec2i = Vec!(int, 2);
+public alias Vec3i = Vec!(int, 3);
+public alias Vec4i = Vec!(int, 4);
 
-alias Vec2u = Vec!(uint, 2);
-alias Vec3u = Vec!(uint, 3);
-alias Vec4u = Vec!(uint, 4);
+public alias Vec2u = Vec!(uint, 2);
+public alias Vec3u = Vec!(uint, 3);
+public alias Vec4u = Vec!(uint, 4);
 
 /++
  + Numeric Vector type with an optional amount of components.
@@ -345,7 +345,8 @@ public struct Vec(T, ulong n) if (n >= 1 && isNumeric!T)
 
         static foreach (i, c; swizzle)
         {
-            static assert(coordToIdx!(c) <= n-1, "Trying to swizzle the " ~ c ~ " component, but this vector is too small.");
+            static assert(coordToIdx!(c) <= n-1,
+                "Trying to swizzle the " ~ c ~ " component, but this vector is too small.");
 
             arr[i] = v[coordToIdx!(c)];
         }
