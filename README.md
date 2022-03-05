@@ -1,5 +1,7 @@
 # Dath
 
+[![DUB](https://img.shields.io/dub/v/dath)](https://code.dlang.org/packages/dath)
+
 A simple math library intended for games, written in D.
 
 The reason for making this library is for personal projects, learning, and it simply being fun to make. As such, this library is a work in progress, the API might change, and the implementation of math functions is definitely a naive one, and performance isn't a huge factor as it's intended for small 2D games, though I will still try and improve performance when I can.
@@ -7,6 +9,12 @@ The reason for making this library is for personal projects, learning, and it si
 Inspiration and ideas from: [gfm](https://code.dlang.org/packages/gfm) and [gl3n](https://github.com/Dav1dde/gl3n).
 
 All functions are `nogc`.
+
+## Usage
+
+Add to your project: `dub add dath`.
+
+Import: `import dath;`.
 
 ## Documentation
 

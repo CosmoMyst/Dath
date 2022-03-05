@@ -2,12 +2,12 @@
 	"authors": [
 		"CodeMyst"
 	],
-	"copyright": "Copyright © 2020, codemyst",
+	"copyright": "Copyright © 2022, codemyst",
 	"dependencies": {
 		"fluent-asserts": "~>0.13.3",
 		"silly": "~>1.1.1"
 	},
-	"description": "math lib intended for games. still very much a work in progress.",
+	"description": "Math lib intended for games. Still very much a work in progress.",
 	"license": "MIT",
 	"name": "dath",
 	"targetType": "library"
