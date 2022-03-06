@@ -341,7 +341,7 @@ public struct Vec(T, ulong n) if (n >= 1 && isNumeric!T)
     /++
      + Get the N-th component.
      +/
-    public T opIndex(int n) @nogc pure const nothrow
+    public T opIndex(const ulong n) @nogc pure const nothrow
     {
         return v[n];
     }
@@ -357,7 +357,7 @@ public struct Vec(T, ulong n) if (n >= 1 && isNumeric!T)
     /++
      + Set the nth component
      +/
-    public T opIndexAssign(T value, int n) @nogc pure nothrow
+    public T opIndexAssign(const T value, const ulong n) @nogc pure nothrow
     {
         return v[n] = value;
     }
@@ -378,7 +378,7 @@ public struct Vec(T, ulong n) if (n >= 1 && isNumeric!T)
     /++ 
      + Swizzling.
      +/
-    public Vec!(T, swizzle.length) opDispatch(const string swizzle)() @nogc const pure nothrow
+    public Vec!(T, swizzle.length) opDispatch(const string swizzle)() @nogc pure nothrow const
     {
         T[swizzle.length] arr;
 
@@ -394,6 +394,9 @@ public struct Vec(T, ulong n) if (n >= 1 && isNumeric!T)
         res.v = arr;
         return res;
     }
+
+    public static Vec!(T, n) zero = Vec!(T, n)(0);
+    public static Vec!(T, n) one = Vec!(T, n)(1);
 
     private template coordToIdx(char c)
     {
@@ -430,6 +433,23 @@ public Vec!(float, 3) cross(T)(Vec!(T, 3) a, Vec!(T, 3) b) @nogc pure nothrow
     return Vec!(float, 3)(a.y * b.z - a.z * b.y,
                           a.z * b.x - a.x * b.z,
                           a.x * b.y - a.y * b.x);
+}
+
+/++ 
+ + Clamps a vector between a min and max value. Compares components and not the vector length.
+ +/
+public Vec!(T, n) clamp(T, ulong n)(const Vec!(T, n) value, const Vec!(T, n) min, const Vec!(T, n) max)
+    @nogc pure nothrow
+{
+    import std.algorithm : clamp;
+
+    Vec!(T, n) res;
+    foreach (i, el; value[])
+    {
+        res[i] = clamp(el, min[i], max[i]);
+    }
+
+    return res;
 }
 
 @("Creating vectors")
@@ -595,4 +615,23 @@ unittest
     // rgba mixed with xyzw because why not
     const t6 = t3.rrzz;
     t6.should.equal(Vec4(1f, 1f, 3f, 3f));
+}
+
+@("Clamping")
+unittest
+{
+    const t1 = Vec2(0.5, 0.5);
+    const t2 = t1.clamp(Vec2.zero, Vec2.one);
+
+    t2.should.equal(t1);
+
+    const t3 = Vec2(1.5, 0.5);
+    const t4 = t3.clamp(Vec2.zero, Vec2.one);
+
+    t4.should.equal(Vec2(1, 0.5));
+
+    const t5 = Vec2(10, 10);
+    const t6 = t5.clamp(Vec2.zero, Vec2.one);
+
+    t6.should.equal(Vec2(1, 1));
 }
